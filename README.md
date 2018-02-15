@@ -2,7 +2,7 @@
 
 ## Instalation
 
-```
+```R
 if(require(devtools)){
    install_github("nmecsys/NMECX13") 
 }else{
@@ -14,6 +14,6 @@ if(require(devtools)){
 
 ## Loading
 
-```
+```R
 require(NMECX13)
 ```
