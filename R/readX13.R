@@ -2,7 +2,7 @@
 #' @description Read a .csv or .xlsx file with time series content. The file must have 2 or more columns. The first one must contain the initial date of the time series. Missings are supported. 
 #' @param path Path to the csv/xlsx file 
 #' @param sheetNumber sheet number of xlsx file 
-
+#' @importFrom readxl read_excel 
 readX13 <- function(path = "", sheetNumber = 1){
   
   if(grepl(".xlsx", path)){
