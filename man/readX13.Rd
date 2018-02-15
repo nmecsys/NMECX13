@@ -2,24 +2,24 @@
 \alias{readX13}
 \title{Read data file for seasonal adjustment}
 \usage{
-function(path = "", sheetNumber = 1)
+readX13(path = "", sheetNumber = 1)
 }
 \arguments{
-\item{path}{Path to the csv/xlsx file}
+\item{path}{path to the csv/xlsx file}
 \item{sheetNumber}{sheet number of xlsx file }
 }
 \value{
 A \code{list} containing the following elements:
 
-\item{xts}{a \code{ts} or \code{mts} object with the time series in a path file .}
-\item{xtsNA}{a \code{ts} or \code{mts} object identifying the missing observations in each series.}
-\item{deniedNames}{a vector with time series names that will not be seasonal adjusted because their length are less than three years.}
-\item{acceptedNames}{a vector with time series names that can be seasonal adjusted.}
-\item{path}{Path to the csv/xlsx file}
+\item{xts}{time series in the path file.}
+\item{xtsNA}{a object identifying the missing observations in each series.}
+\item{deniedNames}{a vector naming the time series that will not be seasonally adjusted (less than three years of observation).}
+\item{acceptedNames}{a vector naming time series that can be seasonally adjusted.}
+\item{path}{path to the csv/xlsx file}
 
 }
 \description{
-Read a .csv or .xlsx file with time series content. The file must have 2 or more columns. The first one must contain the initial date of the time series. Missings are supported. 
+Read a CSV or XLSX file. The file must have 2 or more columns. The first one must contain the sequential date of the time series. Missing values are supported. 
 }
 \examples{
 

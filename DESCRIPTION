@@ -17,4 +17,4 @@ RoxygenNote: 6.0.1
 NeedsCompilation: no
 VignetteBuilder: knitr
 Suggests: knitr
-Imports: seasonal, sfsmisc, xlsx, readxl, lubridate, plyr, zoo
+Imports: seasonal, sfsmisc, readxl, lubridate, plyr, zoo
