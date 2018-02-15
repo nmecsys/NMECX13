@@ -1,8 +1,9 @@
-#' @title Read data file
+#' @title Read data file for seasonal adjustment
 #' @description Read a .csv or .xlsx file with time series content. The file must have 2 or more columns. The first one must contain the initial date of the time series. Missings are supported. 
 #' @param path Path to the csv/xlsx file 
+#' @param sheetNumber sheet number of xlsx file 
 
-readX13 <- function(path, sheetNumber = 1){
+readX13 <- function(path = "", sheetNumber = 1){
   
   if(grepl(".xlsx", path)){
     dados <- data.frame(read_excel(path, sheet = sheetNumber))
@@ -48,7 +49,7 @@ readX13 <- function(path, sheetNumber = 1){
   # nomes das séries de acordo com os tamanhos
   output$deniedNames <- ifelse(length(nomes_menosde3anos) == 0, "", nomes_menosde3anos)
   output$acceptedNames <- nomes_maisde3anos
-  output$title <- path 
+  output$path <- path 
   output
 } 
 
