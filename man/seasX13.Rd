@@ -6,7 +6,7 @@ seasX13(x, ...)
 }
 \arguments{
 \item{x}{output from readX13 function}
-\item{...}{arguments to be passed to seas function from seasonal package}
+\item{...}{arguments to be passed to seas function from \pkg{seasonal} package}
 }
 \value{
 A \code{list} containing the following elements:
@@ -17,13 +17,16 @@ A \code{list} containing the following elements:
 \item{totalFactors}{seasonal plus calendar factors for each series}
 \item{espec}{model especifications for each series}
 \item{model}{output from seas function (package seasonal)  for each series}
+\item{read}{output items from readX13 function}
 
 }
 
 \description{
-seas a CSV or XLSX file. The file must have 2 or more columns. The first one must contain the sequential date of the time series. Missing values are supported. 
+use X-13ARIMA-SEATS program by US Census Bureau to perform seasonal adjustment in time series. The function uses the \pkg{seasonal} package and applies its routine to a csv/xlsx file with multiple series simultaneously.
 }
 
 \examples{
 
 }
+
+
