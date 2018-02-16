@@ -1,6 +1,6 @@
 \name{saveX13}
 \alias{saveX13}
-\title{Save data results of seasonal adjustment}
+\title{Save seasonal adjustment results in multiple files}
 \usage{
 saveX13(output, file = "")
 }
@@ -11,8 +11,8 @@ saveX13(output, file = "")
 
 \description{
 Save CSV files for seasonally adjusted data, seasonal factors, calendar factors, total factors (seasonal & calendar factors) and model specification for each series.
-
 }
+
 \examples{
 
 }
