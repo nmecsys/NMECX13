@@ -100,8 +100,8 @@ seasX13 <- function(x,...){
   esp$outliers.estimated  <-  do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(as.numeric(x$est$reg[casefold(x$est$reg$variable, upper = F) %in% casefold(aux[[1]], upper = F),"estimate"], sep = ", ")), error = function(e) "")))
   qsX13 <- lapply(outX13, FUN = qs)
   esp$qs.original <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[1,2], error = function(e) "")))
-  esp$qs.original.corrigida <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[2,2], error = function(e) "")))
-  esp$qs.serie.cas <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[4,2], error = function(e) "")))
+  esp$qs.original.corrected <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[2,2], error = function(e) "")))
+  esp$qs.serie.sa <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[4,2], error = function(e) "")))
   
   # guardar resultados
   
@@ -123,7 +123,7 @@ seasX13 <- function(x,...){
   colnames(fator_s10) = colnames(fator_td) = colnames(fator_hol) <- nomes
   
   for(i in nomes){
-    if(esp[x,"transform.function"] == "none"){
+    if(esp[i,"transform.function"] == "none"){
       fator_calendario[,i] <- fator_hol[,i] + fator_td[,i]
       fator_calendario[as.Date(fator_calendario[,i]) > fim_prev[i],i] <- NA
       fator_s10[as.Date(fator_s10[,i]) > fim_prev[i],i] <- NA

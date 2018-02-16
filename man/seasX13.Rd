@@ -11,26 +11,19 @@ seasX13(x, ...)
 \value{
 A \code{list} containing the following elements:
 
-\item{xSA}{seasonally adjusted time series.}
-\item{seasonalFactors}{}
-\item{calendarFactors}{}
-\item{totalFactors}{}
-\item{espec}{}
+\item{xSA}{seasonally adjusted time series}
+\item{seasonalFactors}{seasonal factors for each series}
+\item{calendarFactors}{calendar effects for each series}
+\item{totalFactors}{seasonal plus calendar factors for each series}
+\item{espec}{model especifications for each series}
+\item{model}{output from seas function (package seasonal)  for each series}
 
-
- output <- list()
-  output$x_as <- x_as
-  output$seasonalFactors <- fator_s10
-  output$calendarFactors <- fator_calendario
-  output$totalFactors <- fator_total
-  output$espec <- esp
-  output$model <- outX13
-  output
-  
 }
+
 \description{
 seas a CSV or XLSX file. The file must have 2 or more columns. The first one must contain the sequential date of the time series. Missing values are supported. 
 }
+
 \examples{
 
 }
