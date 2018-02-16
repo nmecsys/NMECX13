@@ -6,16 +6,24 @@
 #' @importFrom seasonal seas 
 #' @importFrom sfsmisc vcat
 
-seasX13 <- function(x,...){
+seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
   
   # Extrair nome e dados do objeto obj
   path <- x$path 
-  xts <- x$xts
-  xts2 <- x$xtsNA  # indicando onde começa e termina a série
-  nomes_menosde3anos <-  x$deniedNames
-  nomes_maisde3anos <-  x$acceptedNames
-  datas <- as.data.frame(rownames(x$xts))  # datas 
-  
+  if(is.null(x$xts)){
+    xts <- x$read$xts
+    xts2 <- x$read$xtsNA  # indicando onde começa e termina a série
+    nomes_menosde3anos <- x$read$deniedNames
+    nomes_maisde3anos <- x$read$acceptedNames
+    datas <- as.data.frame(rownames(x$read$xts))  # datas 
+  }else{
+    xts <- x$xts
+    xts2 <- x$xtsNA  # indicando onde começa e termina a série
+    nomes_menosde3anos <- x$deniedNames
+    nomes_maisde3anos <- x$acceptedNames
+    datas <- as.data.frame(rownames(x$xts))  # datas 
+    
+  }  
   # Extrair nomes das séries que serão ajustadas.
   nomes <- colnames(xts) 
   
@@ -32,7 +40,7 @@ seasX13 <- function(x,...){
   esp <- data.frame(matrix("",ncol = 9, nrow = n))
   colnames(esp) <- c("arima.model", "transform.function",
                      "regression.variables", "calendar.effects","outliers.estimated", "stability", 
-                     "qs.original", "qs.original.corrected","qs.series.sa")
+                     "qs.original", "qs.original.corrected","qs.sa")
   rownames(esp) <- nomes
   
   # posições início e fim de cada série
@@ -63,8 +71,6 @@ seasX13 <- function(x,...){
   # 
   # criar lista para guardar objeto 'seas' de cada uma das séries ajustadas.
   outX13 <- list()
-  erro_summary <- list()
-  resul <- c() # guardar resultados de cada ajuste
   
   # séries menores de três anos
   if(nomes_menosde3anos != ""){
@@ -88,8 +94,59 @@ seasX13 <- function(x,...){
     
   }
   
-  # ajuste automático para cada série
-  outX13 <- lapply(do.call(list, xts), FUN = ajuste_automatico)
+  
+  # executar ajuste sazonal --------------------
+  
+  if(!is.null(userCorrection)){    # ajuste definido pelo usário
+    
+    outX13 <- x$model
+    for(i in userCorrection){
+      outX13[[i]] <- ajuste_user(x = xts[,i], espec = x$espec[i,])
+    }
+    
+  }else if(is.null(autoCorrection)){ # ajuste automático para cada série   
+    
+    outX13 <- lapply(do.call(list, xts), FUN = ajuste_automatico, ...)
+  
+  }else{ # achar melhor ajuste para as séries
+    
+    outX13 <- tryCatch(x$model, error = function(e) list())
+    testsModels <- NULL
+    novosNomes <- NULL
+    
+    if(autoCorrection == ""){
+      novosNomes <- nomes
+    }else{
+      novosNomes <- autoCorrection[autoCorrection %in% nomes]
+    }
+    
+    if(length(novosNomes) == 0) stop("autoCorrection names are incorrect!")
+    
+    for(i in novosNomes){
+
+      models <- lapply(rownames(listModels), FUN = function(x) ajuste_correcao(x = xts[,i], model = x))
+      testsModels <- listModels
+      testsModels$autocorrelation <- do.call(c, lapply(models, FUN = function(x) Box.test(x$series$rsd, type = "Ljung-Box", lag = 24)$p.value))
+      testsModels$autocorrelation <- ifelse(testsModels$autocorrelation  < 0.05, "bad", "good")
+      testsModels$qs.sa <- do.call(c, lapply(models, FUN = function(x) qs(x)[4,2]))
+      testsModels$parameters <- do.call(c, lapply(models, FUN = function(x) sum(summary(x)$coefficients[,"Pr(>|z|)"] > 0.05) == 0))
+      testsModels$parameters <- ifelse(testsModels$parameters == 0, "good", "bad")
+      testsModels$bic <- do.call(c, lapply(models, FUN = function(x) summary(x)$bic))
+      
+      melhores <-  testsModels[testsModels$parameters == "good" &  testsModels$autocorrelation == "good" & !is.na(testsModels$autocorrelation),]
+      melhores <- tryCatch(melhores[order(melhores$bic),], error = function(e) melhores)
+      
+      if(nrow(melhores) == 0){
+        outX13[[i]] <- tryCatch(x$model[[i]], error = function(e) NULL)
+        message(paste("Attention! We couldn't find a good model for series", i))
+      }else{
+        best_model <- rownames(melhores[which(melhores$bic == min(melhores$bic)),])
+        outX13[[i]] <- ajuste_correcao(xts[,i], model = best_model)
+      }
+      
+    }
+    names(outX13) <- nomes
+  }
   
   # guardando o restante das especificações   
   esp$arima.model <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(x$model$arima$model, error = function(e) NULL)))
@@ -101,7 +158,7 @@ seasX13 <- function(x,...){
   qsX13 <- lapply(outX13, FUN = qs)
   esp$qs.original <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[1,2], error = function(e) "")))
   esp$qs.original.corrected <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[2,2], error = function(e) "")))
-  esp$qs.serie.sa <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[4,2], error = function(e) "")))
+  esp$qs.sa <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[4,2], error = function(e) "")))
   
   # guardar resultados
   
@@ -138,7 +195,7 @@ seasX13 <- function(x,...){
     }
   }
   
- 
+  
   # output
   output <- list()
   output$xSA <- x_as
@@ -147,7 +204,11 @@ seasX13 <- function(x,...){
   output$totalFactors <- fator_total
   output$espec <- esp
   output$model <- outX13
+  output$read$xts <- xts
+  output$read$xtsNA <- xts2
+  output$read$deniedNames <- nomes_menosde3anos
+  output$read$acceptNames <- nomes_maisde3anos
   output
- 
+  
   
 }
