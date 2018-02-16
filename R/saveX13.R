@@ -1,8 +1,9 @@
-#' @title Read data file for seasonal adjustment
-#' @description Read a .csv or .xlsx file with time series content. The file must have 2 or more columns. The first one must contain the initial date of the time series. Missings are supported. 
-#' @param output Output from seasX13 
-#' @param file a character string naming a file
+#' @title Save seasonal adjustment results in multiple files
+#' @description Save CSV files for seasonally adjusted data, seasonal factors, calendar factors, total factors (seasonal & calendar factors) and model specification for each series.
+#' @param output output from seasX13 function
+#' @param file a character string naming the file
 #' @importFrom zoo as.Date
+#' @export
  
 saveX13 <- function(output, file = ""){
   

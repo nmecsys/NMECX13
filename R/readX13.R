@@ -1,8 +1,15 @@
 #' @title Read data file for seasonal adjustment
-#' @description Read a .csv or .xlsx file with time series content. The file must have 2 or more columns. The first one must contain the initial date of the time series. Missings are supported. 
-#' @param path Path to the csv/xlsx file 
-#' @param sheetNumber sheet number of xlsx file 
+#' @description Read a CSV or XLSX file. The file must have 2 or more columns. The first one must contain the sequential date of the time series. Missing values are supported. 
+#' @param path path to the csv/xlsx file
+#' @param sheetNumber sheet number of xlsx file
+#' @return A \code{list} containing the following elements:
+#' \item{xts}{time series in the path file.}
+#' \item{xtsNA}{a object identifying the missing observations in each series.}
+#' \item{deniedNames}{a vector naming the time series that will not be seasonally adjusted (less than three years of observation).}
+#' \item{acceptedNames}{a vector naming time series that can be seasonally adjusted.}
+#' \item{path}{path to the csv/xlsx file}
 #' @importFrom readxl read_excel 
+#' @export
 
 readX13 <- function(path = "", sheetNumber = 1){
   

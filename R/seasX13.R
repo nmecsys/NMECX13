@@ -1,10 +1,24 @@
 #' @title Sesonal adjustment for data file 
-#' @description Calls the automatic procedures of X-13ARIMA-SEATS to perform a sesonal adjustment with time series. 
+#' @description Use X-13ARIMA-SEATS program by US Census Bureau to perform seasonal adjustment in time series. The function uses the \pkg{seasonal} package and applies its routine to a csv/xlsx file with multiple series simultaneously.
 #' @param x output from readX13 function 
-#' @param ... arguments to be passed to seas function from seasonal package
+#' @param autoCorrection a vector naming the time series should be auto corrected. See Details.
+#' @param userCorrection a vector naming the time series should be corrected by user especifications. See Details.
+#' @param ... arguments to be passed to seas function from \pkg{seasonal} package
+#' @return A \code{list} containing the following elements:
+#' \item{xSA}{seasonally adjusted time series}
+#' \item{seasonalFactors}{seasonal factors for each series}
+#' \item{calendarFactors}{calendar effects for each series}
+#' \item{totalFactors}{seasonal plus calendar factors for each series}
+#' \item{espec}{model especifications for each series}
+#' \item{model}{output from seas function (package \pkg{seasonal})  for each series}
+#' \item{read}{output items from readX13 function}
+#' @details \code{autoCorrection} can assume \code{""} or \code{NULL}, or a vector naming the time series which should be corrected. If \code{autoCorrection = ""}, all time series will be corrected automatically (the final especification is a model with no autocorrelated residuals, significant parameters at 5 percent and smaller BIC between a list of 48 possibles models). Default is \code{NULL} (no auto correction, automatic seasonal adjustment will be executed).
+#' \code{userCorrection} modify the model especification for series chosen by the user. See Examples. 
 #' @importFrom zoo as.Date as.yearmon 
 #' @importFrom seasonal seas 
 #' @importFrom sfsmisc vcat
+#' @export
+
 
 seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
   
