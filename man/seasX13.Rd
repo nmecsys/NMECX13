@@ -2,10 +2,12 @@
 \alias{seasX13}
 \title{Perform seasonal adjustment via X-13ARIMA-SEATS for multiple series}
 \usage{
-seasX13(x, ...)
+seasX13(x, autoCorrection = NULL, userCorrection = NULL, ...)
 }
 \arguments{
 \item{x}{output from readX13 function}
+\item{autoCorrection}{a vector naming the time series should be auto corrected. See Details.}
+\item{userCorrection}{a vector naming the time series should be corrected by user especifications. See Details.}
 \item{...}{arguments to be passed to seas function from \pkg{seasonal} package}
 }
 \value{
@@ -25,6 +27,10 @@ A \code{list} containing the following elements:
 use X-13ARIMA-SEATS program by US Census Bureau to perform seasonal adjustment in time series. The function uses the \pkg{seasonal} package and applies its routine to a csv/xlsx file with multiple series simultaneously.
 }
 
+\details{
+\code{autoCorrection} can assume \code{"", NULL}, or a vector naming the time series should be corrected. If \code{""}, all time series will be corrected automatically (the final especification is a model with no autocorrelated residuals, significant parameters at 5 percent and smaller BIC between a list of 48 possibles models). Default is \code{NULL}.
+\code{userCorrection} modify the model especification for series chosen by the user. See Examples. 
+}
 \examples{
 
 }
