@@ -2,20 +2,8 @@
 
 # NMECX13
 
-## Instalation
+## Installation
 
 ```R
-if(require(devtools)){
-   install_github("nmecsys/NMECX13") 
-}else{
-  install.packages("devtools")
-  require(devtools)
-  install_github("nmecsys/NMECX13") 
-}
-```
-
-## Loading
-
-```R
-require(NMECX13)
+devtools::install_github("nmecsys/NMECX13") 
 ```
