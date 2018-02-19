@@ -51,8 +51,8 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
   n <- dim(xts)[2]  
   
   # crias as especificações de saída
-  esp <- data.frame(matrix("",ncol = 9, nrow = n))
-  colnames(esp) <- c("arima.model", "transform.function",
+  esp <- data.frame(matrix("",ncol = 10, nrow = n))
+  colnames(esp) <- c("series","arima.model", "transform.function",
                      "regression.variables", "calendar.effects","outliers.estimated", "stability", 
                      "qs.original", "qs.original.corrected","qs.sa")
   rownames(esp) <- nomes
@@ -128,7 +128,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
     testsModels <- NULL
     novosNomes <- NULL
     
-    if(autoCorrection == ""){
+    if(autoCorrection == "" & length(autoCorrection) == 1){
       novosNomes <- nomes
     }else{
       novosNomes <- autoCorrection[autoCorrection %in% nomes]
@@ -162,7 +162,8 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
     names(outX13) <- nomes
   }
   
-  # guardando o restante das especificações   
+  # guardando o restante das especificações
+  esp$series <- nomes                              
   esp$arima.model <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(x$model$arima$model, error = function(e) NULL)))
   esp$regression.variables <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(x$model$regression$variables, sep = ", "), error = function(e) "")))
   esp$calendar.effects <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(x$model$regression$user, sep = ", "), error = function(e) "")))
