@@ -1,7 +1,7 @@
 
 ajuste_automatico <- function(x, ...){
-  m <- seas(na.omit(x),
-            estimate.maxiter = 2500,
+  m <- tryCatch(seas(na.omit(x),
+            estimate.maxiter = 5000,
             xreg = calendarEffects$x,
             regression.usertype = c("user","holiday","holiday","user"),
             regression.aictest = NULL,
@@ -11,14 +11,19 @@ ajuste_automatico <- function(x, ...){
             slidingspans.outlier = "keep",
             slidingspans.save = "sfs",
             spectrum.save = c("sp0", "s1s"),
-            spectrum.savelog = "all", ...)
+            spectrum.savelog = "all"), error = function(e) NULL)
   
+  if(is.null(m)){
+    erro_summary <- NULL
+  }else{
+    erro_summary <- tryCatch(summary(m), error = function(e) NULL)
+  }
   
-  erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+  #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
   
   if(is.null(erro_summary)){
-    m <- seas(na.omit(x), 
-              estimate.maxiter = 2500,
+    m <- tryCatch(seas(na.omit(x), 
+              estimate.maxiter = 5000,
               xreg = calendarEffects$x,
               regression.usertype = c("user","holiday","holiday","user"),
               regression.aictest = NULL,
@@ -30,13 +35,19 @@ ajuste_automatico <- function(x, ...){
               slidingspans.save = "sfs",
               spectrum.save = c("sp0", "s1s"),
               spectrum.savelog = "all",
-              transform.function = "none", ...)
+              transform.function = "none"),error = function(e) NULL)#, ...)
     
-    erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+    if(is.null(m)){
+      erro_summary <- NULL
+    }else{
+      erro_summary <- tryCatch(summary(m), error = function(e) NULL)
+    }
+    #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+   
     
     if(is.null(erro_summary)){
-      m <- seas(na.omit(x), 
-                estimate.maxiter = 2500,
+      m <- tryCatch(seas(na.omit(x), 
+                estimate.maxiter = 5000,
                 xreg = calendarEffects$x,
                 regression.usertype = c("user","holiday","holiday","user"),
                 regression.aictest = NULL,
@@ -49,7 +60,7 @@ ajuste_automatico <- function(x, ...){
                 slidingspans.save = "sfs",
                 spectrum.save = c("sp0", "s1s"),
                 spectrum.savelog = "all",
-                transform.function = "none", ...)
+                transform.function = "none"), error = function(e) NULL)#, ...)
     }
   }
   
@@ -88,8 +99,8 @@ ajuste_automatico <- function(x, ...){
         # }
       }
       
-      m <- seas(na.omit(x), 
-                estimate.maxiter = 2500,
+      m <- tryCatch(seas(na.omit(x), 
+                estimate.maxiter = 5000,
                 xreg = var.novos,
                 regression.usertype = tipos.novos,
                 regression.aictest = NULL,
@@ -99,14 +110,20 @@ ajuste_automatico <- function(x, ...){
                 slidingspans.outlier = "keep",
                 slidingspans.save = "sfs",
                 spectrum.save = c("sp0", "s1s"),
-                spectrum.savelog = "all", ...)
+                spectrum.savelog = "all", ...),error = function(e) NULL)
       
       
-      erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+      #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+      
+      if(is.null(m)){
+        erro_summary <- NULL
+      }else{
+        erro_summary <- tryCatch(summary(m), error = function(e) NULL)
+      }
       
       if(is.null(erro_summary)){
-        m <- seas(na.omit(x), 
-                  estimate.maxiter = 2500,
+        m <- tryCatch(seas(na.omit(x), 
+                  estimate.maxiter = 5000,
                   xreg = var.novos,
                   regression.usertype = tipos.novos,
                   regression.aictest = NULL,
@@ -118,13 +135,18 @@ ajuste_automatico <- function(x, ...){
                   slidingspans.save = "sfs",
                   spectrum.save = c("sp0", "s1s"),
                   spectrum.savelog = "all",
-                  transform.function = "none", ...)
+                  transform.function = "none", ...),error = function(e) NULL)#, ...)
         
-        erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+        #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+        if(is.null(m)){
+          erro_summary <- NULL
+        }else{
+          erro_summary <- tryCatch(summary(m), error = function(e) NULL)
+        }
         
         if(is.null(erro_summary)){
-          m <- seas(na.omit(x), 
-                    estimate.maxiter = 2500,
+          m <- tryCatch(seas(na.omit(x), 
+                    estimate.maxiter = 5000,
                     xreg = var.novos,
                     regression.usertype = tipos.novos,
                     regression.aictest = NULL,
@@ -137,7 +159,7 @@ ajuste_automatico <- function(x, ...){
                     slidingspans.save = "sfs",
                     spectrum.save = c("sp0", "s1s"),
                     spectrum.savelog = "all",
-                    transform.function = "none", ...)
+                    transform.function = "none", ...),error = function(e) NULL)
         }
       }
       
@@ -150,7 +172,7 @@ ajuste_automatico <- function(x, ...){
           rownames(aux) <- aux$names_x13
           # substituir os novos p-valores após o novo ajuste
           aux[aux$names_x13,"pvalue"] <- k$coefficients[,"Pr(>|z|)"][aux$names_x13]
-          # testar ap?s o novo ajuste se as novas variáveis são significativas
+          # testar após o novo ajuste se as novas variáveis são significativas
           aux$fica <- aux$pvalue < 0.05
           # atualizar as variáveis e seus nomes
           var.novos <- calendarEffects$x[,as.character(aux$names[aux[,"fica"] == T])]
@@ -188,7 +210,6 @@ ajuste_automatico <- function(x, ...){
         }
       }  
     } # fim do while
-    
   }
   
   if(!(is.null(m))){
@@ -202,7 +223,7 @@ ajuste_automatico <- function(x, ...){
     }
     if(!is.null(ultima_variavel)){
       m$model$regression$user <- ultima_variavel
-    }else if(length(m$model$regression$user) == 3){
+    }else if(length(m$model$regression$user) == 4){
       m$model$regression$user <- aux$names
     }  
     
@@ -211,13 +232,12 @@ ajuste_automatico <- function(x, ...){
   
   # output
   m
-  
 }
 
 
 ajuste_correcao <- function(x, model, ...){
-  m <- seas(na.omit(x),
-            estimate.maxiter = 2500,
+  m <- tryCatch(seas(na.omit(x),
+            estimate.maxiter = 5000,
             arima.model = model,
             xreg = calendarEffects$x,
             regression.usertype = c("user","holiday","holiday","user"),
@@ -228,14 +248,18 @@ ajuste_correcao <- function(x, model, ...){
             slidingspans.outlier = "keep",
             slidingspans.save = "sfs",
             spectrum.save = c("sp0", "s1s"),
-            spectrum.savelog = "all", ...)
-  
-  
-  erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+            spectrum.savelog = "all", ...), error = function(e) NULL)
+
+  if(is.null(m)){
+    erro_summary <- NULL
+  }else{
+    erro_summary <- tryCatch(summary(m), error = function(e) NULL)
+  }
+  #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
   
   if(is.null(erro_summary)){
-    m <- seas(na.omit(x), 
-              estimate.maxiter = 2500,
+    m <- tryCatch(seas(na.omit(x), 
+              estimate.maxiter = 5000,
               arima.model = model,
               xreg = calendarEffects$x,
               regression.usertype = c("user","holiday","holiday","user"),
@@ -248,13 +272,17 @@ ajuste_correcao <- function(x, model, ...){
               slidingspans.save = "sfs",
               spectrum.save = c("sp0", "s1s"),
               spectrum.savelog = "all",
-              transform.function = "none", ...)
-    
-    erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+              transform.function = "none", ...), error = function(e) NULL)
+    if(is.null(m)){
+      erro_summary <- NULL
+    }else{
+      erro_summary <- tryCatch(summary(m), error = function(e) NULL)
+    }
+    #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
     
     if(is.null(erro_summary)){
-      m <- seas(na.omit(x), 
-                estimate.maxiter = 2500,
+      m <- tryCatch(seas(na.omit(x), 
+                estimate.maxiter = 5000,
                 xreg = calendarEffects$x,
                 regression.usertype = c("user","holiday","holiday","user"),
                 regression.aictest = NULL,
@@ -267,7 +295,7 @@ ajuste_correcao <- function(x, model, ...){
                 slidingspans.save = "sfs",
                 spectrum.save = c("sp0", "s1s"),
                 spectrum.savelog = "all",
-                transform.function = "none", ...)
+                transform.function = "none", ...), error = function(e) NULL)
     }
   }
   
@@ -306,8 +334,8 @@ ajuste_correcao <- function(x, model, ...){
         # }
       }
       
-      m <- seas(na.omit(x), 
-                estimate.maxiter = 2500,
+      m <- tryCatch(seas(na.omit(x), 
+                estimate.maxiter = 5000,
                 arima.model = model,
                 xreg = var.novos,
                 regression.usertype = tipos.novos,
@@ -318,14 +346,18 @@ ajuste_correcao <- function(x, model, ...){
                 slidingspans.outlier = "keep",
                 slidingspans.save = "sfs",
                 spectrum.save = c("sp0", "s1s"),
-                spectrum.savelog = "all", ...)
+                spectrum.savelog = "all", ...), error = function(e) NULL)
       
-      
-      erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+      if(is.null(m)){
+        erro_summary <- NULL
+      }else{
+        erro_summary <- tryCatch(summary(m), error = function(e) NULL)
+      }
+      #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
       
       if(is.null(erro_summary)){
-        m <- seas(na.omit(x), 
-                  estimate.maxiter = 2500,
+        m <- tryCatch(seas(na.omit(x), 
+                  estimate.maxiter = 5000,
                   arima.model = model,
                   xreg = var.novos,
                   regression.usertype = tipos.novos,
@@ -338,13 +370,18 @@ ajuste_correcao <- function(x, model, ...){
                   slidingspans.save = "sfs",
                   spectrum.save = c("sp0", "s1s"),
                   spectrum.savelog = "all",
-                  transform.function = "none", ...)
+                  transform.function = "none", ...), error = function(e) NULL)
         
-        erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
+        if(is.null(m)){
+          erro_summary <- NULL
+        }else{
+          erro_summary <- tryCatch(summary(m), error = function(e) NULL)
+        }
+        #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
         
         if(is.null(erro_summary)){
-          m <- seas(na.omit(x), 
-                    estimate.maxiter = 2500,
+          m <- tryCatch(seas(na.omit(x), 
+                    estimate.maxiter = 5000,
                     xreg = var.novos,
                     regression.usertype = tipos.novos,
                     regression.aictest = NULL,
@@ -357,7 +394,7 @@ ajuste_correcao <- function(x, model, ...){
                     slidingspans.save = "sfs",
                     spectrum.save = c("sp0", "s1s"),
                     spectrum.savelog = "all",
-                    transform.function = "none", ...)
+                    transform.function = "none", ...), error = function(e) NULL)
         }
       }
       
@@ -444,7 +481,7 @@ ajuste_user <- function(x, espec, ...){
     typeReg <- NULL
     reg <- NULL
   }
-
+  
   # outliers etc
   variables <- tryCatch(strsplit(espec$regression.variables, ", ")[[1]], error = function(e) NULL)
   if(length(variables) == 0){ variables <- NULL }
@@ -454,7 +491,7 @@ ajuste_user <- function(x, espec, ...){
   if(transform == ""){transform <- "auto"}
   
   m <- seas(na.omit(x),
-            estimate.maxiter = 2500,
+            estimate.maxiter = 5000,
             xreg = reg,
             regression.usertype = typeReg,
             regression.aictest = NULL,
@@ -474,7 +511,7 @@ ajuste_user <- function(x, espec, ...){
   erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
   
   if(is.null(erro_summary)){ stop ("Invalid especification!") }
- 
+  
   if(!(is.null(m))){
     
     # renomear o nome das variáveis de calendário
