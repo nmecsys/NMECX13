@@ -120,8 +120,8 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
     
   }else if(is.null(autoCorrection)){ # ajuste automático para cada série   
     
-    outX13 <- lapply(do.call(list, xts), FUN = ajuste_automatico, ...)
-  
+    outX13 <- lapply(do.call(list, xts), FUN = function(x){ tryCatch(ajuste_automatico(x), error = function(e) x)})#, ...)
+    
   }else{ # achar melhor ajuste para as séries
     
     outX13 <- tryCatch(x$model, error = function(e) list())
@@ -137,7 +137,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
     if(length(novosNomes) == 0) stop("autoCorrection names are incorrect!")
     
     for(i in novosNomes){
-
+      
       models <- lapply(rownames(listModels), FUN = function(x) ajuste_correcao(x = xts[,i], model = x))
       testsModels <- listModels
       testsModels$autocorrelation <- do.call(c, lapply(models, FUN = function(x) Box.test(x$series$rsd, type = "Ljung-Box", lag = 24)$p.value))
@@ -168,8 +168,8 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
   esp$regression.variables <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(x$model$regression$variables, sep = ", "), error = function(e) "")))
   esp$calendar.effects <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(x$model$regression$user, sep = ", "), error = function(e) "")))
   esp$transform.function  <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(as.character(summary(x)["transform.function"]), error = function(e) "")))
-  aux <-  strsplit(esp$regression.variables, ", ")
-  esp$outliers.estimated  <-  do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(as.numeric(x$est$reg[casefold(x$est$reg$variable, upper = F) %in% casefold(aux[[1]], upper = F),"estimate"], sep = ", ")), error = function(e) "")))
+  aux<- unlist(strsplit(esp$regression.variables, ", "))
+  esp$outliers.estimated  <-  do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat((as.numeric(x$est$reg[,"estimate"])[casefold(x$est$reg$variable, upper = F) %in% casefold(aux, upper = F)]), sep = ", "), error = function(e) "")))
   qsX13 <- lapply(outX13, FUN = qs)
   esp$qs.original <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[1,2], error = function(e) "")))
   esp$qs.original.corrected <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[2,2], error = function(e) "")))
