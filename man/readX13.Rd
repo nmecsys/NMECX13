@@ -7,9 +7,9 @@
 readX13(path = "", sheetNumber = 1)
 }
 \arguments{
-\item{path}{path to the csv/xlsx file}
+\item{path}{path to the csv/xlsx file or a data.frame object.}
 
-\item{sheetNumber}{sheet number of xlsx file}
+\item{sheetNumber}{sheet number of xlsx file.}
 }
 \value{
 A \code{list} containing the following elements:
@@ -20,5 +20,13 @@ A \code{list} containing the following elements:
 \item{path}{path to the csv/xlsx file}
 }
 \description{
-Read a CSV or XLSX file. The file must have 2 or more columns. The first one must contain the sequential date of the time series. Missing values are supported.
+Read a CSV or a XLSX file or a data.frame object. The file/object must have 2 or more columns. The first one must contain the sequential date of the time series. Missing values are supported.
+}
+\examples{
+# load data example
+data(serviceSurvey)
+
+# read the object for seasonal adjustment
+data <- readX13(serviceSurvey)
+
 }
