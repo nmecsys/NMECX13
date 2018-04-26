@@ -1,28 +1,42 @@
 #' @title Read data file for seasonal adjustment
-#' @description Read a CSV or XLSX file. The file must have 2 or more columns. The first one must contain the sequential date of the time series. Missing values are supported. 
-#' @param path path to the csv/xlsx file
-#' @param sheetNumber sheet number of xlsx file
+#' @description Read a CSV or a XLSX file or a data.frame object. The file/object must have 2 or more columns. The first one must contain the sequential date of the time series. Missing values are supported. 
+#' @param path path to the csv/xlsx file or a data.frame object.
+#' @param sheetNumber sheet number of xlsx file.
 #' @return A \code{list} containing the following elements:
 #' \item{xts}{time series in the path file.}
 #' \item{xtsNA}{a object identifying the missing observations in each series.}
 #' \item{deniedNames}{a vector naming the time series that will not be seasonally adjusted (less than three years of observation).}
 #' \item{acceptedNames}{a vector naming time series that can be seasonally adjusted.}
 #' \item{path}{path to the csv/xlsx file}
+#' @examples
+#' # load data example
+#' data(serviceSurvey)
+#' 
+#' # read the object for seasonal adjustment
+#' data <- readX13(serviceSurvey)
+#' 
 #' @importFrom readxl read_excel 
 #' @export
 
 readX13 <- function(path = "", sheetNumber = 1){
   
-  if(grepl(".xlsx", path)){
-    dados <- data.frame(read_excel(path, sheet = sheetNumber))
+  if(is.character(path)){
+    if(grepl(".xlsx", path)){
+      dados <- data.frame(read_excel(path, sheet = sheetNumber))
+      inicio <- as.numeric(c(substr(dados[1,1],1,4), substr(dados[1,1],6,7)))
+      fim <- as.numeric(c(substr(dados[nrow(dados),1],1,4), substr(dados[nrow(dados),1],6,7)))
+    }else if(grepl(".csv", path)){
+      dados <- read.csv2(path)
+      inicio <- as.numeric(c(substr(dados[1,1],7,10), substr(dados[1,1],4,5)))
+      fim <- as.numeric(c(substr(dados[nrow(dados),1],7,10), substr(dados[nrow(dados),1],4,5)))
+      colnames(dados)[1] <- "data"
+    }
+  }else if(is.data.frame(path)){
+    dados <- path
     inicio <- as.numeric(c(substr(dados[1,1],1,4), substr(dados[1,1],6,7)))
     fim <- as.numeric(c(substr(dados[nrow(dados),1],1,4), substr(dados[nrow(dados),1],6,7)))
-  }else if(grepl(".csv", path)){
-    dados <- read.csv2(path)
-    inicio <- as.numeric(c(substr(dados[1,1],7,10), substr(dados[1,1],4,5)))
-    fim <- as.numeric(c(substr(dados[nrow(dados),1],7,10), substr(dados[nrow(dados),1],4,5)))
   }
-  colnames(dados)[1] <- "data"
+  
   
   # nome das séries temporais
   nomes <- colnames(dados)[-1]
@@ -57,7 +71,7 @@ readX13 <- function(path = "", sheetNumber = 1){
   # nomes das séries de acordo com os tamanhos
   output$deniedNames <- ifelse(length(nomes_menosde3anos) == 0, "", nomes_menosde3anos)
   output$acceptedNames <- nomes_maisde3anos
-  output$path <- path 
+  output$path <- ifelse(is.data.frame(path), "./", path) 
   output
 } 
 
