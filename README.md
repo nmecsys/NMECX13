@@ -7,4 +7,4 @@
 ```R
 devtools::install_github("nmecsys/NMECX13") 
 ```
-## Leitura do arquivo
+## Reading of the file
