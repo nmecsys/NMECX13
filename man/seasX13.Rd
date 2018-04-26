@@ -26,9 +26,46 @@ A \code{list} containing the following elements:
 \item{read}{output items from readX13 function}
 }
 \description{
-Use X-13ARIMA-SEATS program by US Census Bureau to perform seasonal adjustment in time series. The function uses the \pkg{seasonal} package and applies its routine to a csv/xlsx file with multiple series simultaneously.
+Use X-13ARIMA-SEATS program by US Census Bureau to perform seasonal adjustment in time series. The function uses the \pkg{seasonal} package and applies its routine to a csv/xlsx file with multiple series simultaneously. The function also performs an automatic correction routine so that the results are properly diagnosed (residuals without autocorrelation and seasonality).
 }
 \details{
-\code{autoCorrection} can assume \code{""} or \code{NULL}, or a vector naming the time series which should be corrected. If \code{autoCorrection = ""}, all time series will be corrected automatically (the final especification is a model with no autocorrelated residuals, significant parameters at 5 percent and smaller BIC between a list of 48 possibles models). Default is \code{NULL} (no auto correction, automatic seasonal adjustment will be executed).
-\code{userCorrection} modify the model especification for series chosen by the user. See Examples.
+\code{autoCorrection} can assume \code{""} or \code{NULL}, or a vector naming the time series which should be corrected. If \code{autoCorrection = ""}, all time series will be corrected automatically (the final especification should be a model with no autocorrelated residuals, significant parameters at 5 percent and smaller BIC between a list of 48 possibles models). Default is \code{NULL} (no auto correction, automatic seasonal adjustment will be executed).
+\code{userCorrection} modify the model especification for series chosen by the user. \code{autoCorrection} and \code{userCorrection} can not be executed at the same time. See Examples.
+}
+\examples{
+\dontrun{
+### Automatic seasonal adjustment and results
+# load and read data example
+data(serviceSurvey)
+data <- readX13(serviceSurvey)
+
+# auto seasonal adjustment
+auto <- seasX13(data)
+
+# some results: model especifications
+auto$espec
+
+# some results: SARIMA model (first series)
+summary(auto$model$ICS)
+
+# some results: plot (second series)
+ts.plot(data$xts[,"IES"],auto$xSA[,"IES"], col = 1:2, lwd = 1:2)
+legend("topright", legend = c("original", "seas. adjusted"), col = 1:2, lwd = 1:2, bty = "n")
+
+### correct automatic seasonal adjustment: autoCorrection
+# all series (be patient, 48 models will be executed for each series)
+correct1 <- seasX13(auto, autoCorrection = "")
+
+# correct just one series
+correct2 <- seasX13(auto, autoCorrection = c("ISAS"))
+
+### correct automatic seasonal adjustment: userCorrection
+# edit the especification of output object from function seasX13 
+auto$espec["IES","arima.model"] <- "(0 1 1)(0 1 1)"
+auto$espec["IES","calendar.effects"] <- "td, carnival"
+
+# run seasonal adjustment with userCorrection option
+correct3 <- seasX13(auto, userCorrection = c("IES"))
+correct3$espec
+}
 }
