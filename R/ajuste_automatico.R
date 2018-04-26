@@ -517,9 +517,11 @@ ajuste_user <- function(x, espec, ...){
     # renomear o nome das variáveis de calendário
     if(length(m$model$regression$user) == 1){
       names(m$est$coefficients)[names(m$est$coefficients) == "reg"] <- espec$calendar.effects
+      m$model$regression$user <- espec$calendar.effects
     }else if(length(m$model$regression$user) > 1){
       nomes_dentro <- m$model$regression$user
       names(m$est$coefficients)[names(m$est$coefficients) %in% nomes_dentro] <- colnames(reg)
+      m$model$regression$user <- vcat(espec$calendar.effects, sep = ", ")
     }
     
   }
