@@ -12,5 +12,15 @@ saveX13(output, file = "")
 \item{file}{a character string naming the file}
 }
 \description{
-Save CSV files for seasonally adjusted data, seasonal factors, calendar factors, total factors (seasonal & calendar factors) and model specification for each series.
+Export CSV files for seasonally adjusted data, seasonal factors, calendar factors, total factors (seasonal & calendar factors) and model specification for each series.
+}
+\examples{
+\dontrun{
+# read data example, auto seasonal adjustment, export results
+data(serviceSurvey)
+data <- readX13(serviceSurvey)
+auto <- seasX13(data)
+
+saveX13(auto, "auto")
+}
 }
