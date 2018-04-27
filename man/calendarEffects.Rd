@@ -7,8 +7,8 @@
 \format{A \code{list} with 2 elements: 
 
 \itemize{
- \item \code{x} is a \code{mts} with 3 series: td (trading days), easter, carnaval (Carnival);
- \item \code{desc} is a \code{data.frame} with specifications of the series in x.}}
+ \item \code{x} is a \code{mts} with 4 series: td (trading days), easter, carnival an leapYear;
+ \item \code{desc} is a \code{data.frame} with specifications of the series in \code{x}.}}
 \source{
 The calendar data was collected in IPEA Data \url{www.ipeadata.gov.br}.
 }
@@ -16,5 +16,5 @@ The calendar data was collected in IPEA Data \url{www.ipeadata.gov.br}.
 calendarEffects
 }
 \description{
-Dataset available to replicate the results in \emph{Giannone et al. 2008}.
+Brazilian calendar variables to use in seasonal adjustment.
 }
