@@ -50,9 +50,10 @@
 #' correct3 <- seasX13(auto, userCorrection = c("IES"))
 #' correct3$espec
 #' }
-#' @importFrom zoo as.Date as.yearmon 
-#' @importFrom seasonal seas 
+#' @importFrom zoo as.Date as.yearmon
 #' @importFrom sfsmisc vcat
+#' @import seasonal 
+#' @import lubridate
 #' @export
 
 seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
