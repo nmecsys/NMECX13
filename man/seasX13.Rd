@@ -4,7 +4,7 @@
 \alias{seasX13}
 \title{Sesonal adjustment for data file}
 \usage{
-seasX13(x, autoCorrection = NULL, userCorrection = NULL, ...)
+seasX13(x, autoCorrection = NULL, userCorrection = NULL)
 }
 \arguments{
 \item{x}{output from readX13 function}
@@ -12,8 +12,6 @@ seasX13(x, autoCorrection = NULL, userCorrection = NULL, ...)
 \item{autoCorrection}{a vector naming the time series should be auto corrected. See Details.}
 
 \item{userCorrection}{a vector naming the time series should be corrected by user especifications. See Details.}
-
-\item{...}{arguments to be passed to seas function from \pkg{seasonal} package}
 }
 \value{
 A \code{list} containing the following elements:

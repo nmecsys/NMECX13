@@ -3,7 +3,6 @@
 #' @param x output from readX13 function 
 #' @param autoCorrection a vector naming the time series should be auto corrected. See Details.
 #' @param userCorrection a vector naming the time series should be corrected by user especifications. See Details.
-#' @param ... arguments to be passed to seas function from \pkg{seasonal} package
 #' @return A \code{list} containing the following elements:
 #' \item{xSA}{seasonally adjusted time series}
 #' \item{seasonalFactors}{seasonal factors for each series}
@@ -56,7 +55,7 @@
 #' @import lubridate
 #' @export
 
-seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
+seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
   
   # Extrair nome e dados do objeto obj
   path <- x$path 
@@ -72,8 +71,8 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
     nomes_menosde3anos <- x$deniedNames
     nomes_maisde3anos <- x$acceptedNames
     datas <- as.data.frame(rownames(x$xts))  # datas 
-    
   }  
+  
   # Extrair nomes das séries que serão ajustadas.
   nomes <- colnames(xts) 
   
@@ -87,7 +86,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
   n <- dim(xts)[2]  
   
   # crias as especificações de saída
-  esp <- data.frame(matrix("",ncol = 10, nrow = n))
+  esp <- data.frame(matrix("",ncol = 10, nrow = n), stringsAsFactors = F)
   colnames(esp) <- c("series","arima.model", "transform.function",
                      "regression.variables", "calendar.effects","outliers.estimated", "stability", 
                      "qs.original", "qs.original.corrected","qs.sa")
@@ -156,7 +155,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
     
   }else if(is.null(autoCorrection)){ # ajuste automático para cada série   
     
-    outX13 <- lapply(do.call(list, xts), FUN = function(x){ tryCatch(ajuste_automatico(x), error = function(e) x)})#, ...)
+    outX13 <- lapply(do.call(list, xts), FUN = function(x){ tryCatch(ajuste_automatico(x), error = function(e) x)})
     
   }else{ # achar melhor ajuste para as séries
     
@@ -204,9 +203,10 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
   esp$regression.variables <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(x$model$regression$variables, sep = ", "), error = function(e) "")))
   esp$calendar.effects <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(x$model$regression$user, sep = ", "), error = function(e) "")))
   esp$transform.function  <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(as.character(summary(x)["transform.function"]), error = function(e) "")))
-  aux<- unlist(strsplit(esp$regression.variables, ", "))
+  esp$transform.function[is.na(esp$transform.function)] <- ""
+  aux <- unlist(strsplit(esp$regression.variables, ", "))
   esp$outliers.estimated  <-  do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat((as.numeric(x$est$reg[,"estimate"])[casefold(x$est$reg$variable, upper = F) %in% casefold(aux, upper = F)]), sep = ", "), error = function(e) "")))
-  qsX13 <- lapply(outX13, FUN = qs)
+  qsX13 <- lapply(outX13, FUN = function(x) tryCatch(qs(x), error = function(e) NULL))
   esp$qs.original <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[1,2], error = function(e) "")))
   esp$qs.original.corrected <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[2,2], error = function(e) "")))
   esp$qs.sa <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[4,2], error = function(e) "")))
@@ -214,7 +214,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL, ...){
   # guardar resultados
   
   extrair_st <- function(x, type = ""){
-    m <- series(outX13[[x]], type)
+    m <- tryCatch(series(outX13[[x]], type), error = function(e) NULL)
     if(is.null(m)){
       if(esp[x,"transform.function"] == "none"){ 
         m <- ts(0, start = start(fator1), end = end(fator1), freq = 12) 

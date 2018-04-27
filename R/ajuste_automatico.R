@@ -1,5 +1,5 @@
 
-ajuste_automatico <- function(x, ...){
+ajuste_automatico <- function(x){
   m <- tryCatch(seas(na.omit(x),
             estimate.maxiter = 5000,
             xreg = calendarEffects$x,
@@ -35,7 +35,7 @@ ajuste_automatico <- function(x, ...){
               slidingspans.save = "sfs",
               spectrum.save = c("sp0", "s1s"),
               spectrum.savelog = "all",
-              transform.function = "none"),error = function(e) NULL)#, ...)
+              transform.function = "none"),error = function(e) NULL)
     
     if(is.null(m)){
       erro_summary <- NULL
@@ -60,7 +60,7 @@ ajuste_automatico <- function(x, ...){
                 slidingspans.save = "sfs",
                 spectrum.save = c("sp0", "s1s"),
                 spectrum.savelog = "all",
-                transform.function = "none"), error = function(e) NULL)#, ...)
+                transform.function = "none"), error = function(e) NULL)
     }
   }
   
@@ -110,7 +110,7 @@ ajuste_automatico <- function(x, ...){
                 slidingspans.outlier = "keep",
                 slidingspans.save = "sfs",
                 spectrum.save = c("sp0", "s1s"),
-                spectrum.savelog = "all", ...),error = function(e) NULL)
+                spectrum.savelog = "all"),error = function(e) NULL)
       
       
       #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
@@ -135,7 +135,7 @@ ajuste_automatico <- function(x, ...){
                   slidingspans.save = "sfs",
                   spectrum.save = c("sp0", "s1s"),
                   spectrum.savelog = "all",
-                  transform.function = "none", ...),error = function(e) NULL)#, ...)
+                  transform.function = "none"),error = function(e) NULL)
         
         #erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
         if(is.null(m)){
@@ -159,7 +159,7 @@ ajuste_automatico <- function(x, ...){
                     slidingspans.save = "sfs",
                     spectrum.save = c("sp0", "s1s"),
                     spectrum.savelog = "all",
-                    transform.function = "none", ...),error = function(e) NULL)
+                    transform.function = "none"),error = function(e) NULL)
         }
       }
       
@@ -235,7 +235,7 @@ ajuste_automatico <- function(x, ...){
 }
 
 
-ajuste_correcao <- function(x, model, ...){
+ajuste_correcao <- function(x, model){
   m <- tryCatch(seas(na.omit(x),
             estimate.maxiter = 5000,
             arima.model = model,
@@ -248,7 +248,7 @@ ajuste_correcao <- function(x, model, ...){
             slidingspans.outlier = "keep",
             slidingspans.save = "sfs",
             spectrum.save = c("sp0", "s1s"),
-            spectrum.savelog = "all", ...), error = function(e) NULL)
+            spectrum.savelog = "all"), error = function(e) NULL)
 
   if(is.null(m)){
     erro_summary <- NULL
@@ -272,7 +272,7 @@ ajuste_correcao <- function(x, model, ...){
               slidingspans.save = "sfs",
               spectrum.save = c("sp0", "s1s"),
               spectrum.savelog = "all",
-              transform.function = "none", ...), error = function(e) NULL)
+              transform.function = "none"), error = function(e) NULL)
     if(is.null(m)){
       erro_summary <- NULL
     }else{
@@ -295,7 +295,7 @@ ajuste_correcao <- function(x, model, ...){
                 slidingspans.save = "sfs",
                 spectrum.save = c("sp0", "s1s"),
                 spectrum.savelog = "all",
-                transform.function = "none", ...), error = function(e) NULL)
+                transform.function = "none"), error = function(e) NULL)
     }
   }
   
@@ -346,7 +346,7 @@ ajuste_correcao <- function(x, model, ...){
                 slidingspans.outlier = "keep",
                 slidingspans.save = "sfs",
                 spectrum.save = c("sp0", "s1s"),
-                spectrum.savelog = "all", ...), error = function(e) NULL)
+                spectrum.savelog = "all"), error = function(e) NULL)
       
       if(is.null(m)){
         erro_summary <- NULL
@@ -370,7 +370,7 @@ ajuste_correcao <- function(x, model, ...){
                   slidingspans.save = "sfs",
                   spectrum.save = c("sp0", "s1s"),
                   spectrum.savelog = "all",
-                  transform.function = "none", ...), error = function(e) NULL)
+                  transform.function = "none"), error = function(e) NULL)
         
         if(is.null(m)){
           erro_summary <- NULL
@@ -394,7 +394,7 @@ ajuste_correcao <- function(x, model, ...){
                     slidingspans.save = "sfs",
                     spectrum.save = c("sp0", "s1s"),
                     spectrum.savelog = "all",
-                    transform.function = "none", ...), error = function(e) NULL)
+                    transform.function = "none"), error = function(e) NULL)
         }
       }
       
@@ -472,7 +472,7 @@ ajuste_correcao <- function(x, model, ...){
 }
 
 
-ajuste_user <- function(x, espec, ...){
+ajuste_user <- function(x, espec){
   
   reg <- tryCatch(calendarEffects$x[,unlist(strsplit(espec$calendar.effects, ", "))], error = function(e) NULL)
   typeReg <- tryCatch(calendarEffects$desc[calendarEffects$desc$names %in% unlist(strsplit(espec$calendar.effects, ", ")),"types"],
@@ -505,7 +505,7 @@ ajuste_user <- function(x, espec, ...){
             slidingspans.outlier = "keep",
             slidingspans.save = "sfs",
             spectrum.save = c("sp0", "s1s"),
-            spectrum.savelog = "all")#, ...)
+            spectrum.savelog = "all")
   
   
   erro_summary <- ifelse(is.null(m), NULL, tryCatch(summary(m),error = function(e) NULL))
