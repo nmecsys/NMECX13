@@ -1,4 +1,4 @@
-#' @title Sesonal adjustment for data file 
+#' @title Seasonal adjustment for data file 
 #' @description Use X-13ARIMA-SEATS program by US Census Bureau to perform seasonal adjustment in time series. The function uses the \pkg{seasonal} package and applies its routine to a csv/xlsx file with multiple series simultaneously. The function also performs an automatic correction routine so that the results are properly diagnosed (residuals without autocorrelation and seasonality).  
 #' @param x output from readX13 function 
 #' @param autoCorrection a vector naming the time series should be auto corrected. See Details.
@@ -51,6 +51,7 @@
 #' }
 #' @importFrom zoo as.Date as.yearmon
 #' @importFrom sfsmisc vcat
+#' @importFrom stats Box.test end start ts window window<-
 #' @import seasonal 
 #' @import lubridate
 #' @export
@@ -76,12 +77,6 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
   # Extrair nomes das séries que serão ajustadas.
   nomes <- colnames(xts) 
   
-  # definindo quantos anos têm as séries
-  ll <- apply(xts2, MARGIN = 2, FUN = sum)
-  #names36 <- names(ll[ll < 36])
-  #namesresto <- names(ll[ll >= 49])
-  #nomes_menos49meses <- names(ll[ll >= 36 & ll < 49])
-  
   # Verificar quantas séries existem em obj
   n <- dim(xts)[2]  
   
@@ -105,9 +100,9 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
   names(inicio_prev) = names(fim_prev) <- nomes
   
   # criar data.frame para guardar as séries ajustadas.
-  x_as <-  ts(xts*NA, start = start(xts[,1]), freq = 12)*NA # séries com ajuste sazonal
+  x_as <-  ts(xts*NA, start = start(xts[,1]), frequency = 12)*NA # séries com ajuste sazonal
   x_s10 <- x_as*NA # fator sazonal
-  fator1 <- ts(xts*NA, start = start(xts[,1]), end = as.yearmon(max(as.Date(xts[,1])) + months(12)), freq = 12)
+  fator1 <- ts(xts*NA, start = start(xts[,1]), end = as.yearmon(max(as.Date(xts[,1])) + months(12)), frequency = 12)
   fator_s10 = fator_calendario = fator_td = fator_hol = fator_total <- fator1
   colnames(fator_s10) = colnames(fator_calendario) = colnames(fator_td) = colnames(fator_hol) = colnames(fator_total) <- nomes
   
@@ -128,18 +123,18 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     # fatores 0 para o comprimento da série, NA para o resto
     
     for(i in 1:n){
-      window(fator_s10[,i], start = inicio[i], end = fim_prev[i], freq = 12) <- 0
-      window(fator_td[,i], start = inicio[i], end = fim_prev[i], freq = 12) <- 0
-      window(fator_hol[,i], start = inicio[i], end = fim_prev[i], freq = 12) <- 0
+      window(fator_s10[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
+      window(fator_td[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
+      window(fator_hol[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
     }
     
     fator_calendario <- fator_hol + fator_td
     fator_total <- fator_s10 + fator_calendario
     colnames(fator_calendario) = colnames(fator_total) <- nomes
     
-    x_as <- ts(xts, start = start(xts[,1]), freq = 12) - fator_total
+    x_as <- ts(xts, start = start(xts[,1]), frequency = 12) - fator_total
     colnames(x_as) <- nomes
-    x_s10 <- window(fator_total, start = start(x_s10), end = end(x_s10), freq = 12)
+    x_s10 <- window(fator_total, start = start(x_s10), end = end(x_s10), frequency = 12)
     
   }
   
@@ -217,17 +212,17 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     m <- tryCatch(series(outX13[[x]], type), error = function(e) NULL)
     if(is.null(m)){
       if(esp[x,"transform.function"] == "none"){ 
-        m <- ts(0, start = start(fator1), end = end(fator1), freq = 12) 
+        m <- ts(0, start = start(fator1), end = end(fator1), frequency = 12) 
       }else{ 
-        m <- ts(1, start = start(fator1), end = end(fator1), freq = 12)
+        m <- ts(1, start = start(fator1), end = end(fator1), frequency = 12)
       }
     }
     m
   }
   
-  fator_s10 <- window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "s10")), start = start(fator1), end = end(fator1), freq = 12)
-  fator_td <-  window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "usr")), start = start(fator1), end = end(fator1), freq = 12)
-  fator_hol <-  window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "hol")), start = start(fator1), end = end(fator1), freq = 12)
+  fator_s10 <- window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "s10")), start = start(fator1), end = end(fator1), frequency = 12)
+  fator_td <-  window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "usr")), start = start(fator1), end = end(fator1), frequency = 12)
+  fator_hol <-  window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "hol")), start = start(fator1), end = end(fator1), frequency = 12)
   colnames(fator_s10) = colnames(fator_td) = colnames(fator_hol) <- nomes
   
   for(i in nomes){
@@ -259,6 +254,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
   output$read$xtsNA <- xts2
   output$read$deniedNames <- nomes_menosde3anos
   output$read$acceptNames <- nomes_maisde3anos
+  output$read$path <- path
   output
   
   

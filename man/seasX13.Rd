@@ -2,7 +2,7 @@
 % Please edit documentation in R/seasX13.R
 \name{seasX13}
 \alias{seasX13}
-\title{Sesonal adjustment for data file}
+\title{Seasonal adjustment for data file}
 \usage{
 seasX13(x, autoCorrection = NULL, userCorrection = NULL)
 }

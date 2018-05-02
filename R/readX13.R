@@ -16,6 +16,7 @@
 #' data <- readX13(serviceSurvey)
 #' 
 #' @importFrom readxl read_excel 
+#' @importFrom utils read.csv2
 #' @export
 
 readX13 <- function(path = "", sheetNumber = 1){
@@ -49,7 +50,7 @@ readX13 <- function(path = "", sheetNumber = 1){
   colnames(xts) <- nomes
   
   for(nome in nomes){
-    xts[,nome] <- ts(dados[,nome], start = inicio, freq = 12)
+    xts[,nome] <- ts(dados[,nome], start = inicio, frequency = 12)
   } 
   
   # criar série temporal de 1 e 0, onde os 0's são NA 

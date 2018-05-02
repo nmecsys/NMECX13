@@ -12,6 +12,7 @@
 #' saveX13(auto, "auto")
 #' }
 #' @importFrom zoo as.Date
+#' @importFrom utils write.csv2
 #' @export
  
 saveX13 <- function(output, file = ""){
