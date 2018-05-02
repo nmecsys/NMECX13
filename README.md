@@ -2,7 +2,7 @@
 
 # NMECX13
 Use X-13ARIMA-SEATS program by US Census Bureau to perform seasonal adjustment in multiple time series simultaneously.
-The main function (`seasX13()`) uses the `seasonal` package to perform the seasonal adjustment. The function also performs an automatic correction routine so that the results are properly diagnosed (residuals without autocorrelation and seasonality).
+The main function `seasX13()` uses the `seasonal` package to perform the seasonal adjustment. The function also performs an automatic correction routine so that the results are properly diagnosed (residuals without autocorrelation and seasonality).
 
 **The package is in development. Reviews, comments and pull requests are welcome.**
 
