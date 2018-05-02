@@ -6,11 +6,11 @@ The main function `seasX13()` uses the `seasonal` package to perform the seasona
 
 **The package is in development. Reviews, comments and pull requests are welcome.**
 
-## Installation
+## Install and load
 
-github
 ```R
 devtools::install_github('nmecsys/NMECX13')
+library(NMECX13)
 ```
 
 ## How to use NMECX13 package
