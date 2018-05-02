@@ -19,7 +19,6 @@ devtools::install_github('nmecsys/NMECX13')
 ### read a data file (csv or xlsx) or a data.frame
 
 ```R
-### Automatic seasonal adjustment and results
 # load and read data example
 data(serviceSurvey)
 data <- readX13(serviceSurvey)
