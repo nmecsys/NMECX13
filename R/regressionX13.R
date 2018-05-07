@@ -10,7 +10,7 @@
 
 regressionX13 <- function(x, series, espec = NULL, file = NULL){
   
-  if(is.null(file)){ stop("file name not found.") }
+  if(is.null(file)){ stop("Insert the file name. No extensions are required.") }
   # extraindo nomes e dados do obj 
   nomes <- series
   titulo <- x$path 
