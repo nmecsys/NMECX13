@@ -13,5 +13,6 @@ We use the `seasonal` R package developed by Christopher Sax to perform the seas
 }
 \author{
 Daiane Marcolino de Mattos \email{daiane.mattos@fgv.br},
-        Bianca Gonçalves \email{biagbp@gmail.com}
+        Bianca Gonçalves \email{biagbp@gmail.com},
+        Pedro Guilherme Costa Ferreira \email{pedro.guilherme@fgv.br}
 }
