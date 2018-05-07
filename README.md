@@ -19,7 +19,7 @@ library(NMECX13)
 There are three steps to perform the seasonal adjustment in several series:
 
 1. read
-2. automatic seasonal adjustment, check results and correct them if necessary)
+2. automatic seasonal adjustment, check results and correct them if necessary
 4. export results to a csv file
 
 
