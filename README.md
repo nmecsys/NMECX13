@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/nmecsys/NMECX13.svg?branch=master)](https://travis-ci.org/nmecsys/NMECX13)
-
 
 # NMECX13
 The package `NMECX13` uses X-13ARIMA-SEATS program by US Census Bureau to perform seasonal adjustment in multiple time series simultaneously. The main function `seasX13()` uses the package `seasonal` to perform the seasonal adjustment. The function also performs an automatic correction routine so that the results are properly diagnosed (residuals without autocorrelation and seasonality).
