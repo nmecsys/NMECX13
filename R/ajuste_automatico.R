@@ -1,4 +1,3 @@
-
 ajuste_automatico <- function(x){
   m <- tryCatch(seas(na.omit(x),
             estimate.maxiter = 5000,
