@@ -11,7 +11,7 @@
 
 regressionX13 <- function(x, series, espec = NULL, file = NULL){
   
-  options(warn=0)
+  options(warn=-1)
   
   if(is.null(file)){ stop("Insert the file name. No extensions are required.") }
   
@@ -778,7 +778,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
   
   
   
-  options(warn=-1)
+  options(warn=0)
   
   # exportar resultados
   ifelse(!dir.exists(file.path("./", "regression")), dir.create(file.path("./", "regression")), FALSE)
@@ -788,21 +788,21 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
     fat_saz[,i] <- as.numeric(fat_saz[,i])
   }
   
-  if(ncol(serie_cas[,tam < 60]) == 0){
+  #if(ncol(serie_cas[,tam < 60]) == 0){
     write.csv2(serie_cas, paste0("./regression/", file, "_seasonallyAdjusted.csv"), row.names = F, na = "")
     write.csv2(fat_saz, paste0("./regression/", file, "_seasonalFactors.csv"),  row.names = F, na = "")
     write.csv2(tabela2_3anos_final, paste0("./regression/", file, "_seasonalFactors_3years.csv"), row.names = F, na = "")
     write.csv2(tabela2_4anos_final, paste0("./regression/", file, "_seasonalFactors_4years.csv"), row.names = F, na = "")
     write.csv2(tabela2_5anos_final, paste0("./regression/", file, "_seasonalFactors_5years.csv"), row.names = F, na = "")
-  }else{
-    write.csv2(serie_cas[,tam < 60], paste0("./regression/", file, "_seasonallyAdjusted_less60obs.csv"), row.names = F, na = "")
-    write.csv2(fat_saz[,tam < 60], paste0("./regression/", file, "_seasonalFactors_less60obs.csv"),  row.names = F, na = "")
-    write.csv2(serie_cas[,tam >= 60], paste0("./regression/", file, "_seasonallyAdjusted.csv"), row.names = F, na = "")
-    write.csv2(fat_saz[,tam >= 60], paste0("./regression/", file, "_seasonalFactors.csv"),  row.names = F, na = "")
-    write.csv2(tabela2_3anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_3years.csv"), row.names = F, na = "")
-    write.csv2(tabela2_4anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_4years.csv"), row.names = F, na = "")
-    write.csv2(tabela2_5anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_5years.csv"), row.names = F, na = "")
-  }
+  # }else{
+  #   write.csv2(serie_cas[,tam < 60], paste0("./regression/", file, "_seasonallyAdjusted_less60obs.csv"), row.names = F, na = "")
+  #   write.csv2(fat_saz[,tam < 60], paste0("./regression/", file, "_seasonalFactors_less60obs.csv"),  row.names = F, na = "")
+  #   write.csv2(serie_cas[,tam >= 60], paste0("./regression/", file, "_seasonallyAdjusted.csv"), row.names = F, na = "")
+  #   write.csv2(fat_saz[,tam >= 60], paste0("./regression/", file, "_seasonalFactors.csv"),  row.names = F, na = "")
+  #   write.csv2(tabela2_3anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_3years.csv"), row.names = F, na = "")
+  #   write.csv2(tabela2_4anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_4years.csv"), row.names = F, na = "")
+  #   write.csv2(tabela2_5anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_5years.csv"), row.names = F, na = "")
+  # }
   
  
 }
