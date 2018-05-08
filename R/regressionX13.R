@@ -235,7 +235,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
   serie_cas$datas <- datas2
   fat_saz <- data.frame(fat_saz[,"datas"],fat_saz[,nomes])
   serie_cas <- data.frame(serie_cas[,"datas"],serie_cas[,nomes]) 
-  colnames(fat_saz) = colnames(serie_cas) <- c("datas",nomes)
+  colnames(fat_saz) = colnames(serie_cas) <- c("date",nomes)
 
   ## Aqui só entrarão séries com mais de 5 anos, pois não é possível achar todas as janelas para séries pequenas! 
   
@@ -380,7 +380,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
           
           seq_datas <- seq.Date(ii,fi,by="month") # sequência de datas de cada janela de cada série
           serie_data <- data.frame(seq_datas,j_3anos_serie[[no]][[k]])
-          colnames(serie_data) <- c("datas",no)
+          colnames(serie_data) <- c("date",no)
           
           # fatores sazonais de cada janela de cada série
           fat_jan[[no]][[k]] <- serie_data[which(substr(seq_datas,6,7)=="01"),no][1] 
@@ -548,7 +548,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
           
           seq_datas2 <- seq.Date(ii2,fi2,by="month") # sequência de datas de cada janela de cada série
           serie_data2 <- data.frame(seq_datas2,j_4anos_serie[[no]][[k]])
-          colnames(serie_data2) <- c("datas",no)
+          colnames(serie_data2) <- c("date",no)
           
           # fatores sazonais de cada janela de cada série
           fat_jan2[[no]][[k]] <- serie_data2[which(substr(seq_datas2,6,7)=="01"),no][1] 
@@ -714,7 +714,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
           
           seq_datas3 <- seq.Date(ii3,fi3,by="month") # sequência de datas de cada janela de cada série
           serie_data3 <- data.frame(seq_datas3,j_5anos_serie[[no]][[k]])
-          colnames(serie_data3) <- c("datas",no)
+          colnames(serie_data3) <- c("date",no)
           
           # fatores sazonais de cada janela de cada série
           fat_jan3[[no]][[k]] <- serie_data3[which(substr(seq_datas3,6,7)=="01"),no][1] 
@@ -783,6 +783,10 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
   # exportar resultados
   ifelse(!dir.exists(file.path("./", "regression")), dir.create(file.path("./", "regression")), FALSE)
   
+  for(i in 2:ncol(serie_cas)){
+    serie_cas[,i] <- as.numeric(serie_cas[,i])
+    fat_saz[,i] <- as.numeric(fat_saz[,i])
+  }
   
   if(ncol(serie_cas[,tam < 60]) == 0){
     write.csv2(serie_cas, paste0("./regression/", file, "_seasonallyAdjusted.csv"), row.names = F, na = "")
