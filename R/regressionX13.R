@@ -6,72 +6,60 @@
 #' @param file a character string naming the file
 #' @importFrom stats end start ts aggregate median na.omit quantile sd decompose
 #' @importFrom utils write.csv2
+#' @importFrom dplyr %>%
 #' @export
 
 regressionX13 <- function(x, series, espec = NULL, file = NULL){
   
+  options(warn=0)
+  
   if(is.null(file)){ stop("Insert the file name. No extensions are required.") }
+  
   # extraindo nomes e dados do obj 
   nomes <- series
   titulo <- x$path 
   xts <- x$xts
   xts2 <- x$xtsNA
-  dados <- as.data.frame(rownames(x$xts))  # datas 
-  #nomes_menos3anos <- series_menos3anos
+  dados <- data.frame(datas = as.Date(rownames(x$xts)), stringsAsFactors = F)  # datas 
   
+  # posições início e fim de cada série
+  posicao_inicial <- apply(xts2 == 1, MARGIN = 2, FUN = function(x) min(which(x)))
+  posicao_final <- apply(xts2 == 1, MARGIN = 2, FUN = function(x) max(which(x)))
+  inicio <- rbind(as.numeric(substr(as.Date(dados[posicao_inicial,]),1,4)), 
+                  as.numeric(substr(as.Date(dados[posicao_inicial,]),6,7))) %>% as.data.frame()
+  fim <- rbind(as.numeric(substr(as.Date(dados[posicao_final,]),1,4)), 
+               as.numeric(substr(as.Date(dados[posicao_final,]),6,7))) %>% as.data.frame()
+  colnames(inicio) = colnames(fim) <- nomes
   
-  # posições (início e fim das séries)
-  posicao_inicial <- data.frame(matrix(nrow=1,ncol=ncol(xts)))
-  colnames(posicao_inicial) <- nomes 
-  posicao_final <- data.frame(matrix(nrow=1,ncol=ncol(xts)))
-  colnames(posicao_final) <- nomes 
-  
-  for(nome in nomes){
-    posicao_inicial[,nome] <- min(which(xts2[,nome]==1))
-    posicao_final[,nome]   <- max(which(xts2[,nome]==1))
-  }
-  
-  # datas (início e fim das séries)
-  inicio <- data.frame(matrix(nrow=2,ncol=length(nomes)))
-  colnames(inicio) <- nomes 
-  fim <- data.frame(matrix(nrow=2,ncol=length(nomes))) 
-  colnames(fim) <- nomes 
-  
-  for(nome in nomes){
-    inicio[,nome] <- as.numeric(c(substr(dados[posicao_inicial[,nome],1],1,4),substr(dados[posicao_inicial[,nome],1],6,7)))
-    fim[,nome] <- as.numeric(c(substr(dados[posicao_final[,nome],1],1,4),substr(dados[posicao_final[,nome],1],6,7)))
-  }
   
   # previsão de 12 meses
-  prev <- list()
-  for(no in nomes){
-    if(fim[2,nome] == 12){
-      prev[[no]] <- ts(xts[,no]*NA, start = c(inicio[1,no],inicio[2,no]), end = c(fim[1,no]+1, 12), frequency = 12)
+  prev <- lapply(nomes, FUN = function(x){
+    if(fim[2,x] == 12){
+      ts(xts[,x]*NA, start = c(inicio[1,x],inicio[2,x]), end = c(fim[1,x]+1, 12), frequency = 12)
     }else{
-      prev[[no]] <- ts(xts[,no]*NA, start = c(inicio[1,no],inicio[2,no]), end = c(fim[1,no]+1, fim[2,no]), frequency = 12)
+      ts(xts[,x]*NA, start = c(inicio[1,x],inicio[2,x]), end = c(fim[1,x]+1, fim[2,no]), frequency = 12)
     }
-  }
+  })
+  names(prev) <- nomes
   
   # data máxima
-  todas_datas <- seq.Date(as.Date(dados[1,1]),as.Date(dados[nrow(dados),1]),by="month")
-  data_maxima <- max(todas_datas)
-  ano_maximo <- as.numeric(substr(data_maxima,1,4)) 
-  mes_maximo <- as.numeric(substr(data_maxima,6,7)) 
+  ano_maximo <- as.numeric(substr(max(dados[,1]),1,4)) 
+  mes_maximo <- as.numeric(substr(max(dados[,1]),6,7)) 
   
   # data mínima
-  todas_datas <- seq.Date(as.Date(dados[1,1]),as.Date(dados[nrow(dados),1]),by="month")
-  data_minima <- min(todas_datas)
-  ano_minimo <- as.numeric(substr(data_minima,1,4)) 
-  mes_minimo <- as.numeric(substr(data_minima,6,7))
+  ano_minimo <- as.numeric(substr(min(dados[,1]),1,4)) 
+  mes_minimo <- as.numeric(substr(min(dados[,1]),6,7))
   
   # fator1 (data.frame para todos os possíveis resultados)
-  for(nome in nomes){
-    if(fim[2,nome] == 12){
-      fator1 <- ts(xts[,nome]*NA, start = c(ano_minimo,mes_minimo), end = c(ano_maximo+1, 12), frequency = 12)
+  
+  fator1 <- lapply(nomes, FUN = function(x){
+    if(fim[2,x] == 12){
+      ts(xts[,x]*NA, start = c(ano_minimo,mes_minimo), end = c(ano_maximo+1, 12), frequency = 12)
     }else{
-      fator1 <- ts(xts[,nome]*NA, start = c(ano_minimo,mes_minimo), end = c(ano_maximo+1, mes_maximo), frequency = 12)
+      ts(xts[,x]*NA, start = c(ano_minimo,mes_minimo), end = c(ano_maximo+1, mes_maximo), frequency = 12)
     }
-  }
+  })
+  names(fator1) <- nomes
   
   # posições finais para o fator1 em cada série ajustada
   ff <- data.frame(matrix(nrow=2,ncol=ncol(xts)))
@@ -80,7 +68,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
   colnames(ff1) <- nomes
   
   for (no in nomes){
-    if(inicio[1,no] != start(fator1)[1]){
+    if(inicio[1,no] != start(fator1[[no]])[1]){
       if(inicio[2,no] == 1){
         ff[1,no] <- (inicio[1,no])-1 
         ff[2,no] <- 12 
@@ -88,7 +76,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
         ff[1,no] <- (inicio[1,no]) 
         ff[2,no] <- (inicio[2,no]) -1
       }  
-      if(inicio[2,no] != start(fator1)[2]){
+      if(inicio[2,no] != start(fator1[[no]])[2]){
         ff[1,no] <- inicio[1,no]
         ff[2,no] <- inicio[2,no]-1
       }else{
@@ -96,7 +84,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
         ff[2,no] <- inicio[2,no]
       }
     }else{
-      if(inicio[2,no] != start(fator1)[2]){
+      if(inicio[2,no] != start(fator1[[no]])[2]){
         ff[1,no] <- inicio[1,no]
         ff[2,no] <- inicio[2,no]-1
       }else{
@@ -108,7 +96,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
   
   
   for (no in nomes){ 
-    if(fim[1,no] != end(fator1)[1]){
+    if(fim[1,no] != end(fator1[[no]])[1]){
       if(fim[2,no] == 12){
         ff1[1,no] <- (fim[1,no])+1 
         ff1[2,no] <- 1
@@ -129,7 +117,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
   fs <- x$xts*NA 
   colnames(fs) <- nomes
   
-  fat_saz <- as.data.frame(matrix(NA,ncol=length(nomes),nrow=length(fator1)))
+  fat_saz <- as.data.frame(matrix(NA,ncol=length(nomes),nrow=length(fator1[[no]])))
   colnames(fat_saz) <- nomes
   
   serie_cas <- x$xts*NA
@@ -149,32 +137,29 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
     
     # condições para preencher os fatores sazonais
     
-    if(ff[1,no] == start(fator1)[1]){       # para o in?cio
-      if(ff[2,no] == start(fator1)[2]){
+    if(ff[1,no] == start(fator1[[no]])[1]){       # para o in?cio
+      if(ff[2,no] == start(fator1[[no]])[2]){
         a[[no]] <- NULL  
       }else{
-        a[[no]] <- c(ts(NA,start=start(fator1),end=c(ff[,no]),frequency=12))
+        a[[no]] <- c(ts(NA,start=start(fator1[[no]]),end=c(ff[,no]),frequency=12))
       }
     }else{
-      a[[no]] <- c(ts(NA,start=start(fator1),end=c(ff[,no]),frequency=12))
+      a[[no]] <- c(ts(NA,start=start(fator1[[no]]),end=c(ff[,no]),frequency=12))
     }
     
     
     
-    if(ff1[1,no] == end(fator1)[1]){     # para o fim
-      if(ff1[2,no] == end(fator1)[2]){
+    if(ff1[1,no] == end(fator1[[no]])[1]){     # para o fim
+      if(ff1[2,no] == end(fator1[[no]])[2]){
         h[[no]] <- NULL
       }else{
-        h[[no]] <- c(ts(NA,start=c(ff1[,no]),end=end(fator1),frequency=12))
+        h[[no]] <- c(ts(NA,start=c(ff1[,no]),end=end(fator1[[no]]),frequency=12))
       }
     }else{
-      h[[no]] <- c(ts(NA,start=c(ff1[,no]),end=end(fator1),frequency=12))
+      h[[no]] <- c(ts(NA,start=c(ff1[,no]),end=end(fator1[[no]]),frequency=12))
     }
     
-  }
-  
-  
-  for(no in nomes){  
+
     if(is.null(espec)){
       
       # fatores sazonais de cada série
@@ -184,7 +169,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
       datas_prev <- seq.Date(as.Date(paste0((end(fs[,no])[1]-1),"-",end(fs[,no])[2],"-", "01")),by = "months", length.out = 13)
       valores_previsao[[no]] <- fs[seq(which(as.Date(fs[,no])==datas_prev[2]),which(as.Date(fs[,no])==datas_prev[13])),no] 
       
-      fat_saz[,no] <- ts(c(a[[no]],window(fs[,no], start = c(inicio[1,no], inicio[2,no]), end=c(fim[1,no], fim[2,no]), frequency=12),valores_previsao[[no]],h[[no]]),start = start(fator1), end = end(fator1), frequency = 12)
+      fat_saz[,no] <- ts(c(a[[no]],window(fs[,no], start = c(inicio[1,no], inicio[2,no]), end=c(fim[1,no], fim[2,no]), frequency=12),valores_previsao[[no]],h[[no]]),start = start(fator1[[no]]), end = end(fator1[[no]]), frequency = 12)
       
       # série com ajuste sazonal 
       serie_cas[,no] <- xts[,no] - fs[,no]
@@ -201,7 +186,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
         datas_prev <- seq.Date(as.Date(paste0((end(fs[,no])[1]-1),"-",end(fs[,no])[2],"-", "01")),by = "months", length.out = 13)
         valores_previsao[[no]] <- fs[seq(which(as.Date(fs[,no])==datas_prev[2]),which(as.Date(fs[,no])==datas_prev[13])),no] 
         
-        fat_saz[,no] <- ts(c(a[[no]],window(fs[,no], start = c(inicio[1,no], inicio[2,no]), end=c(fim[1,no], fim[2,no]), frequency=12),valores_previsao[[no]],h[[no]]),start = start(fator1), end = end(fator1), frequency = 12)          
+        fat_saz[,no] <- ts(c(a[[no]],window(fs[,no], start = c(inicio[1,no], inicio[2,no]), end=c(fim[1,no], fim[2,no]), frequency=12),valores_previsao[[no]],h[[no]]),start = start(fator1[[no]]), end = end(fator1[[no]]), frequency = 12)          
         
         
         # série com ajuste sazonal 
@@ -216,7 +201,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
         datas_prev <- seq.Date(as.Date(paste0((end(fs[,no])[1]-1),"-",end(fs[,no])[2],"-", "01")),by = "months", length.out = 13)
         valores_previsao[[no]] <- fs[seq(which(as.Date(fs[,no])==datas_prev[2]),which(as.Date(fs[,no])==datas_prev[13])),no] 
         
-        fat_saz[,no] <- ts(c(a[[no]],window(fs[,no], start = c(inicio[1,no], inicio[2,no]), end=c(fim[1,no], fim[2,no]), frequency=12),valores_previsao[[no]],h[[no]]),start = start(fator1), end = end(fator1), frequency = 12)          
+        fat_saz[,no] <- ts(c(a[[no]],window(fs[,no], start = c(inicio[1,no], inicio[2,no]), end=c(fim[1,no], fim[2,no]), frequency=12),valores_previsao[[no]],h[[no]]),start = start(fator1[[no]]), end = end(fator1[[no]]), frequency = 12)          
         
         # série com ajuste sazonal 
         serie_cas[,no] <- xts[,no]/fs[,no]
@@ -241,36 +226,26 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
     data_final <- paste0(end(fator1)[1],"-","0",end(fator1)[2],"-","01")
   }
   
-  datas1 <- as.data.frame(zoo::as.yearmon(seq.Date(as.Date(dados[1,]),as.Date(data_final),by = "month")))
+  data_final <- max(do.call(c, lapply(fator1, FUN = function(x) max(as.Date(x)))))
+  datas1 <- data.frame(as.yearmon(seq.Date(as.Date(dados[1,]),as.Date(data_final),by = "month")))
+  datas2 <- data.frame(as.yearmon(dados[,1]))
   
-  datas2 <- as.data.frame(zoo::as.yearmon(seq.Date(as.Date(dados[1,]),as.Date(dados[nrow(dados),]),by = "month")))
   
   fat_saz$datas <- datas1 
-  colnames(fat_saz$datas) <- "datas" 
-  fat_saz <- data.frame(fat_saz[,"datas"],fat_saz[,nomes])
-  colnames(fat_saz) <- c("datas",nomes)
-  
   serie_cas$datas <- datas2
-  colnames(serie_cas$datas) <- "datas" 
+  fat_saz <- data.frame(fat_saz[,"datas"],fat_saz[,nomes])
   serie_cas <- data.frame(serie_cas[,"datas"],serie_cas[,nomes]) 
-  colnames(serie_cas) <- c("datas",nomes)
-  
-  
-  
+  colnames(fat_saz) = colnames(serie_cas) <- c("datas",nomes)
+
   ## Aqui só entrarão séries com mais de 5 anos, pois não é possível achar todas as janelas para séries pequenas! 
   
   
   # definindo quantos anos têm as séries
-  tam <- matrix(NA,nrow = 1,ncol=ncol(xts2))
-  for (j in 1:ncol(xts2)){
-    tam[1,j] <- sum(xts2[,j])
-  }    
-  colnames(tam) <- nomes
-  
+  tam <- apply(xts2, 2, sum)
   tamanho <- data.frame(as.data.frame(matrix(tam,nrow=length(tam),ncol=1)),nomes)
   
-  nomes_grandes <- tamanho[which(tamanho[,1]>60),"nomes"]
-  nomes_pequenos <- tamanho[which(tamanho[,1]<=60),"nomes"]
+  nomes_grandes <- nomes[tam >= 60] #tamanho[which(tamanho[,1]>60),"nomes"]
+  nomes_pequenos <- nomes[tam < 60]
   
   tabela2_3anos <- list()
   tabela2_4anos <- list()
@@ -278,7 +253,7 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
   
   
   
-  for (i in 1:nrow(tamanho)){
+  for (i in 1:length(tam)){
     if(tamanho[i,1] < 60){
       message(paste("A série",nomes[i],"tem menos de 5 anos de observação! Não é possível definir as janelas."))
       
@@ -808,16 +783,22 @@ regressionX13 <- function(x, series, espec = NULL, file = NULL){
   # exportar resultados
   ifelse(!dir.exists(file.path("./", "regression")), dir.create(file.path("./", "regression")), FALSE)
   
-  for (i in 1:ncol(xts)){
-    if(tam[1,i] < 60){
-      write.csv2(serie_cas, paste0("./regression/", file, "_seasonallyAdjusted.csv"), row.names = F, na = "")
-      write.csv2(fat_saz, paste0("./regression/", file, "_seasonalFactors.csv"),  row.names = F, na = "")
-    }else{
-      write.csv2(serie_cas, paste0("./regression/", file, "_seasonallyAdjusted.csv"), row.names = F, na = "")
-      write.csv2(fat_saz, paste0("./regression/", file, "_seasonalFactors.csv"),  row.names = F, na = "")
-      write.csv2(tabela2_3anos_final, paste0("./regression/", file, "_seasonalFactors_3years.csv"), row.names = F, na = "")
-      write.csv2(tabela2_4anos_final, paste0("./regression/", file, "_seasonalFactors_4years.csv"), row.names = F, na = "")
-      write.csv2(tabela2_5anos_final, paste0("./regression/", file, "_seasonalFactors_5years.csv"), row.names = F, na = "")
-    }
+  
+  if(ncol(serie_cas[,tam < 60]) == 0){
+    write.csv2(serie_cas, paste0("./regression/", file, "_seasonallyAdjusted.csv"), row.names = F, na = "")
+    write.csv2(fat_saz, paste0("./regression/", file, "_seasonalFactors.csv"),  row.names = F, na = "")
+    write.csv2(tabela2_3anos_final, paste0("./regression/", file, "_seasonalFactors_3years.csv"), row.names = F, na = "")
+    write.csv2(tabela2_4anos_final, paste0("./regression/", file, "_seasonalFactors_4years.csv"), row.names = F, na = "")
+    write.csv2(tabela2_5anos_final, paste0("./regression/", file, "_seasonalFactors_5years.csv"), row.names = F, na = "")
+  }else{
+    write.csv2(serie_cas[,tam < 60], paste0("./regression/", file, "_seasonallyAdjusted_less60obs.csv"), row.names = F, na = "")
+    write.csv2(fat_saz[,tam < 60], paste0("./regression/", file, "_seasonalFactors_less60obs.csv"),  row.names = F, na = "")
+    write.csv2(serie_cas[,tam >= 60], paste0("./regression/", file, "_seasonallyAdjusted.csv"), row.names = F, na = "")
+    write.csv2(fat_saz[,tam >= 60], paste0("./regression/", file, "_seasonalFactors.csv"),  row.names = F, na = "")
+    write.csv2(tabela2_3anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_3years.csv"), row.names = F, na = "")
+    write.csv2(tabela2_4anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_4years.csv"), row.names = F, na = "")
+    write.csv2(tabela2_5anos_final[,tam >= 60], paste0("./regression/", file, "_seasonalFactors_5years.csv"), row.names = F, na = "")
   }
+  
+ 
 }
