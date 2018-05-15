@@ -170,7 +170,7 @@ ajuste_automatico <- function(x){
           aux$names_x13 <- paste0("xreg",1:length(aux$names_x13))
           rownames(aux) <- aux$names_x13
           # substituir os novos p-valores após o novo ajuste
-          aux[aux$names_x13,"pvalue"] <- k$coefficients[,"Pr(>|z|)"][aux$names_x13]
+          aux[as.character(aux$names_x13),"pvalue"] <- k$coefficients[,"Pr(>|z|)"][as.character(aux$names_x13)]
           # testar após o novo ajuste se as novas variáveis são significativas
           aux$fica <- aux$pvalue < 0.05
           # atualizar as variáveis e seus nomes
@@ -309,7 +309,7 @@ ajuste_correcao <- function(x, model){
     aux$pvalue <- NA  
     
     # identificar o p-valor de cada variável
-    aux[aux$names_x13,"pvalue"] <- k$coefficients[,"Pr(>|z|)"][aux$names_x13]
+    aux[as.character(aux$names_x13),"pvalue"] <- k$coefficients[,"Pr(>|z|)"][as.character(aux$names_x13)]
     
     aux$fica <- aux$pvalue < 0.05 
     
@@ -405,7 +405,7 @@ ajuste_correcao <- function(x, model){
           aux$names_x13 <- paste0("xreg",1:length(aux$names_x13))
           rownames(aux) <- aux$names_x13
           # substituir os novos p-valores após o novo ajuste
-          aux[aux$names_x13,"pvalue"] <- k$coefficients[,"Pr(>|z|)"][aux$names_x13]
+          aux[as.character(aux$names_x13),"pvalue"] <- k$coefficients[,"Pr(>|z|)"][as.character(aux$names_x13)]
           # testar ap?s o novo ajuste se as novas variáveis são significativas
           aux$fica <- aux$pvalue < 0.05
           # atualizar as variáveis e seus nomes
