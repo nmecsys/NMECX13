@@ -74,7 +74,7 @@ ajuste_automatico <- function(x){
     aux$pvalue <- NA  
     
     # identificar o p-valor de cada variável
-    aux[aux$names_x13,"pvalue"] <- k$coefficients[,"Pr(>|z|)"][aux$names_x13]
+    aux[as.character(aux$names_x13),"pvalue"] <- k$coefficients[,"Pr(>|z|)"][as.character(aux$names_x13)]
     
     aux$fica <- aux$pvalue < 0.05 
     
