@@ -63,7 +63,9 @@ ajuste_automatico <- function(x){
     }
   }
   
-  if(is.null(m)){ stop("seasonal adjust object is null")
+  if(is.null(m)){ 
+    message("Seasonal adjust object is null!")
+    m <- x
   }else{
     # Verificar se as variáveis do calendário são significativas
     ultima_variavel <- NULL 
@@ -227,8 +229,6 @@ ajuste_automatico <- function(x){
     }  
     
   }
-  
-  
   # output
   m
 }

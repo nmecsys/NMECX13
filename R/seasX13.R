@@ -194,14 +194,14 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
   
   # guardando o restante das especificações
   esp$series <- nomes                              
-  esp$arima.model <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(x$model$arima$model, error = function(e) NULL)))
+  esp$arima.model <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(x$model$arima$model, error = function(e) "")))
   esp$regression.variables <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(x$model$regression$variables, sep = ", "), error = function(e) "")))
   esp$calendar.effects <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat(x$model$regression$user, sep = ", "), error = function(e) "")))
   esp$transform.function  <- do.call(c,lapply(outX13, FUN = function(x) tryCatch(as.character(summary(x)["transform.function"]), error = function(e) "")))
   esp$transform.function[is.na(esp$transform.function)] <- ""
   aux <- unlist(strsplit(esp$regression.variables, ", "))
   esp$outliers.estimated  <-  do.call(c,lapply(outX13, FUN = function(x) tryCatch(vcat((as.numeric(x$est$reg[,"estimate"])[casefold(x$est$reg$variable, upper = F) %in% casefold(aux, upper = F)]), sep = ", "), error = function(e) "")))
-  qsX13 <- lapply(outX13, FUN = function(x) tryCatch(qs(x), error = function(e) NULL))
+  qsX13 <- lapply(outX13, FUN = function(x) tryCatch(qs(x), error = function(e) ""))
   esp$qs.original <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[1,2], error = function(e) "")))
   esp$qs.original.corrected <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[2,2], error = function(e) "")))
   esp$qs.sa <- do.call(c, lapply(qsX13, FUN = function(x) tryCatch(x[4,2], error = function(e) "")))
@@ -220,10 +220,53 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     m
   }
   
-  fator_s10 <- window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "s10")), start = start(fator1), end = end(fator1), frequency = 12)
-  fator_td <-  window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "usr")), start = start(fator1), end = end(fator1), frequency = 12)
-  fator_hol <-  window(do.call(cbind, lapply(names(outX13), FUN = extrair_st, type = "hol")), start = start(fator1), end = end(fator1), frequency = 12)
-  colnames(fator_s10) = colnames(fator_td) = colnames(fator_hol) <- nomes
+  s10 <- lapply(names(outX13), FUN = function(x) tryCatch(outX13[[x]]$series$s10, error = function(e) NULL))
+  names(s10) <- nomes
+  s10ok <- lapply(names(outX13), FUN = function(x){
+    if(is.null(s10[[x]])){
+        if(esp[x,"transform.function"] == "none"){ 
+          m <- ts(0, start = start(fator1), end = end(fator1), frequency = 12) 
+        }else{ 
+          m <- ts(1, start = start(fator1), end = end(fator1), frequency = 12)
+        }
+    }else{
+      s10[[x]]
+    }
+  })
+  names(s10ok) <- nomes
+  fator_s10 <- window(do.call(cbind,s10ok), start = start(fator1), end = end(fator1), frequency = 12)
+  
+  td <- lapply(names(outX13), FUN = function(x) tryCatch(outX13[[x]]$series$usr, error = function(e) NULL))
+  names(td) <- nomes
+  tdok <- lapply(names(outX13), FUN = function(x){
+    if(is.null(td[[x]])){
+      if(esp[x,"transform.function"] == "none"){ 
+        m <- ts(0, start = start(fator1), end = end(fator1), frequency = 12) 
+      }else{ 
+        m <- ts(1, start = start(fator1), end = end(fator1), frequency = 12)
+      }
+    }else{
+      td[[x]]
+    }
+  })
+  names(tdok) <- nomes
+  fator_td <- window(do.call(cbind,tdok), start = start(fator1), end = end(fator1), frequency = 12)
+  
+  hol <- lapply(names(outX13), FUN = function(x) tryCatch(outX13[[x]]$series$hol, error = function(e) NULL))
+  names(hol) <- nomes
+  holok <- lapply(names(outX13), FUN = function(x){
+    if(is.null(hol[[x]])){
+      if(esp[x,"transform.function"] == "none"){ 
+        m <- ts(0, start = start(fator1), end = end(fator1), frequency = 12) 
+      }else{ 
+        m <- ts(1, start = start(fator1), end = end(fator1), frequency = 12)
+      }
+    }else{
+      hol[[x]]
+    }
+  })
+  names(holok) <- nomes
+  fator_hol <- window(do.call(cbind,holok), start = start(fator1), end = end(fator1), frequency = 12)
   
   for(i in nomes){
     if(esp[i,"transform.function"] == "none"){
