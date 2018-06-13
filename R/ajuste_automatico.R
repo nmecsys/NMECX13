@@ -298,7 +298,7 @@ ajuste_correcao <- function(x, model){
     }
   }
   
-  if(is.null(m)){ stop("seasonal adjust object is null")
+  if(is.null(m)){ message("seasonal adjust object is null")
   }else{
     # Verificar se as variáveis do calendário são significativas
     ultima_variavel <- NULL 
@@ -462,6 +462,8 @@ ajuste_correcao <- function(x, model){
       m$model$regression$user <- aux$names
     }  
     
+  }else{
+    m <- NULL
   }
   
   
