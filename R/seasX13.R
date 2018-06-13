@@ -138,7 +138,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     
   }
   
-
+  
   # executar ajuste sazonal --------------------
   
   if(!is.null(userCorrection)){    # ajuste definido pelo usário
@@ -154,9 +154,9 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     outX13 <- lapply(colnames(xts), FUN = function(x){
       message("performing automatic seasonal adjustment: ", x)
       suppressMessages({
-      tryCatch(ajuste_automatico(xts[,x]), error = function(e) x)
+        tryCatch(ajuste_automatico(xts[,x]), error = function(e) x)
       })
-      })
+    })
     names(outX13) <- nomes
     
   }else{ # achar melhor ajuste para as séries
@@ -179,7 +179,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     for(i in novosNomes){
       message("performing autoCorretion: ", i)
       suppressMessages({
-      models <- lapply(rownames(listModels), FUN = function(x) ajuste_correcao(x = xts[,i], model = x))
+        models <- lapply(rownames(listModels), FUN = function(x) ajuste_correcao(x = xts[,i], model = x))
       })
       testsModels <- listModels
       testsModels$autocorrelation <- do.call(c, lapply(models, FUN = function(x) Box.test(x$series$rsd, type = "Ljung-Box", lag = 24)$p.value))
@@ -197,7 +197,9 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
         message(paste("Attention! We couldn't find a good model for series", i))
       }else{
         best_model <- rownames(melhores[which(melhores$bic == min(melhores$bic)),])
-        outX13[[i]] <- ajuste_correcao(xts[,i], model = best_model)
+        suppressMessages({
+          outX13[[i]] <- ajuste_correcao(xts[,i], model = best_model)
+        })
       }
       
     }
@@ -236,11 +238,11 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
   names(s10) <- nomes
   s10ok <- lapply(names(outX13), FUN = function(x){
     if(is.null(s10[[x]])){
-        if(esp[x,"transform.function"] == "none"){ 
-          m <- ts(0, start = start(fator1), end = end(fator1), frequency = 12) 
-        }else{ 
-          m <- ts(1, start = start(fator1), end = end(fator1), frequency = 12)
-        }
+      if(esp[x,"transform.function"] == "none"){ 
+        m <- ts(0, start = start(fator1), end = end(fator1), frequency = 12) 
+      }else{ 
+        m <- ts(1, start = start(fator1), end = end(fator1), frequency = 12)
+      }
     }else{
       s10[[x]]
     }
