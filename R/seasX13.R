@@ -175,19 +175,19 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     
     message("be patient, 48 models will be executed for each series")
     message("------------------------------------------------------")
-    
+    models <- list()
     for(i in novosNomes){
       message("performing autoCorretion: ", i)
       suppressMessages({
-        models <- lapply(rownames(listModels), FUN = function(x) ajuste_correcao(x = xts[,i], model = x))
+        models[[i]] <- lapply(rownames(listModels), FUN = function(x) ajuste_correcao(x = xts[,i], model = x))
       })
       testsModels <- listModels
-      testsModels$autocorrelation <- do.call(c, lapply(models, FUN = function(x) Box.test(x$series$rsd, type = "Ljung-Box", lag = 24)$p.value))
+      testsModels$autocorrelation <- do.call(c, lapply(models[[i]], FUN = function(x) tryCatch(Box.test(x$series$rsd, type = "Ljung-Box", lag = 24)$p.value, error = function(e) 0)))
       testsModels$autocorrelation <- ifelse(testsModels$autocorrelation  < 0.05, "bad", "good")
-      testsModels$qs.sa <- do.call(c, lapply(models, FUN = function(x) qs(x)[4,2]))
-      testsModels$parameters <- do.call(c, lapply(models, FUN = function(x) sum(summary(x)$coefficients[,"Pr(>|z|)"] > 0.05) == 0))
+      testsModels$qs.sa <- do.call(c, lapply(models[[i]], FUN = function(x) tryCatch(qs(x)[4,2], error = function(e) 0)))
+      testsModels$parameters <- do.call(c, lapply(models[[i]], FUN = function(x) tryCatch(sum(summary(x)$coefficients[,"Pr(>|z|)"] > 0.05) == 0, error = function(e) T)))
       testsModels$parameters <- ifelse(testsModels$parameters == 0, "good", "bad")
-      testsModels$bic <- do.call(c, lapply(models, FUN = function(x) summary(x)$bic))
+      testsModels$bic <- do.call(c, lapply(models[[i]], FUN = function(x) tryCatch(summary(x)$bic, error = function(e) Inf)))
       
       melhores <-  testsModels[testsModels$parameters == "good" &  testsModels$autocorrelation == "good" & !is.na(testsModels$autocorrelation),]
       melhores <- tryCatch(melhores[order(melhores$bic),], error = function(e) melhores)
