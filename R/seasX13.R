@@ -150,11 +150,12 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     
   }else if(is.null(autoCorrection)){ # ajuste automático para cada série   
     
-    outX13 <- lapply(do.call(list, xts), FUN = function(x){ tryCatch(ajuste_automatico(x), error = function(e) x)})
-    # outX13 <- lapply(colnames(xts), FUN = function(x){
-    #   tryCatch(ajuste_automatico(xts[,x]), error = function(e) x)
-    #   message("complete automatic seasonal adjustment: ", x)
-    #   })
+    #outX13 <- lapply(do.call(list, xts), FUN = function(x){ tryCatch(ajuste_automatico(x), error = function(e) x)})
+    outX13 <- lapply(colnames(xts), FUN = function(x){
+      message("performing automatic seasonal adjustment: ", x)
+      tryCatch(ajuste_automatico(xts[,x]), error = function(e) x)
+      })
+    names(outX13) <- nomes
     
   }else{ # achar melhor ajuste para as séries
     
