@@ -172,7 +172,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     if(length(novosNomes) == 0) stop("autoCorrection names are incorrect!")
     
     for(i in novosNomes){
-      #message("autoCorretion:", i)
+      message("performing autoCorretion: ", i)
       models <- lapply(rownames(listModels), FUN = function(x) ajuste_correcao(x = xts[,i], model = x))
       testsModels <- listModels
       testsModels$autocorrelation <- do.call(c, lapply(models, FUN = function(x) Box.test(x$series$rsd, type = "Ljung-Box", lag = 24)$p.value))
