@@ -138,7 +138,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     
   }
   
-  
+
   # executar ajuste sazonal --------------------
   
   if(!is.null(userCorrection)){    # ajuste definido pelo usário
@@ -153,7 +153,9 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     #outX13 <- lapply(do.call(list, xts), FUN = function(x){ tryCatch(ajuste_automatico(x), error = function(e) x)})
     outX13 <- lapply(colnames(xts), FUN = function(x){
       message("performing automatic seasonal adjustment: ", x)
+      suppressMessages({
       tryCatch(ajuste_automatico(xts[,x]), error = function(e) x)
+      })
       })
     names(outX13) <- nomes
     
@@ -171,9 +173,14 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     
     if(length(novosNomes) == 0) stop("autoCorrection names are incorrect!")
     
+    message("be patient, 48 models will be executed for each series")
+    message("------------------------------------------------------")
+    
     for(i in novosNomes){
       message("performing autoCorretion: ", i)
+      suppressMessages({
       models <- lapply(rownames(listModels), FUN = function(x) ajuste_correcao(x = xts[,i], model = x))
+      })
       testsModels <- listModels
       testsModels$autocorrelation <- do.call(c, lapply(models, FUN = function(x) Box.test(x$series$rsd, type = "Ljung-Box", lag = 24)$p.value))
       testsModels$autocorrelation <- ifelse(testsModels$autocorrelation  < 0.05, "bad", "good")
@@ -288,7 +295,6 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
       x_as[,i] <- xts[,i] / fator_total[,i]
     }
   }
-  
   
   # output
   output <- list()
