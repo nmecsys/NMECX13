@@ -250,6 +250,18 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
   names(s10ok) <- nomes
   fator_s10 <- window(do.call(cbind,s10ok), start = start(fator1), end = end(fator1), frequency = 12)
   
+  model_000 <- tryCatch(nomes[esp$arima.model == "(0 0 0)"], error = function(e) NULL)
+  if(!is.null(model_000)){
+    for(kk in model_000){
+      if(esp$transform.function[which(kk == nomes)] == "log"){
+        fator_s10[,kk] <- 1  
+      }else{
+        fator_s10[,kk] <- 0  
+      }
+      
+    }
+  }
+
   td <- lapply(names(outX13), FUN = function(x) tryCatch(outX13[[x]]$series$usr, error = function(e) NULL))
   names(td) <- nomes
   tdok <- lapply(names(outX13), FUN = function(x){
