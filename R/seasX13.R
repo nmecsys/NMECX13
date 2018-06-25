@@ -161,7 +161,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     
   }else{ # achar melhor ajuste para as séries
     
-    outX13 <- tryCatch(x$model, error = function(e) list())
+    outX13 <- tryCatch(x$model, error = function(e) x)
     testsModels <- NULL
     novosNomes <- NULL
     
@@ -172,7 +172,7 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     }
     
     if(length(novosNomes) == 0) stop("autoCorrection names are incorrect!")
-    
+
     message("be patient, 48 models will be executed for each series")
     message("------------------------------------------------------")
     models <- list()
@@ -194,6 +194,9 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
       
       if(nrow(melhores) == 0){
         outX13[[i]] <- tryCatch(x$model[[i]], error = function(e) NULL)
+        if(is.null(outX13[[i]])){
+           outX13[[i]] <- tryCatch(x$xts[,i], error = function(e) x$read$xts[,i])
+        }
         message(paste("Attention! We couldn't find a good model for series", i))
       }else{
         best_model <- rownames(melhores[which(melhores$bic == min(melhores$bic)),])
