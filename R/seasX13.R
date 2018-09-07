@@ -103,8 +103,8 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
   x_as <-  ts(xts*NA, start = start(xts[,1]), frequency = 12)*NA # séries com ajuste sazonal
   x_s10 <- x_as*NA # fator sazonal
   fator1 <- ts(xts*NA, start = start(xts[,1]), end = as.yearmon(max(as.Date(xts[,1])) + months(12)), frequency = 12)
-  fator_s10 = fator_calendario = fator_td = fator_hol = fator_total <- fator1
-  colnames(fator_s10) = colnames(fator_calendario) = colnames(fator_td) = colnames(fator_hol) = colnames(fator_total) <- nomes
+  fator_s10 = fator_calendario = fator_total <- fator1 # fator_td = fator_hol = 
+  colnames(fator_s10) = colnames(fator_calendario) = colnames(fator_total) <- nomes # = colnames(fator_td) = colnames(fator_hol) 
   
   # fator_s10 <- data.frame(matrix(NA, nrow = length(fator1), ncol = length(nomes)))
   # fator_calendario <- data.frame(matrix(NA, nrow = length(fator1), ncol = length(nomes)))
@@ -124,11 +124,12 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     
     for(i in 1:n){
       window(fator_s10[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
-      window(fator_td[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
-      window(fator_hol[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
+      window(fator_calendario[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
+      #window(fator_td[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
+      #window(fator_hol[,i], start = inicio[i], end = fim_prev[i], frequency = 12) <- 0
     }
     
-    fator_calendario <- fator_hol + fator_td
+    #fator_calendario <- fator_hol + fator_td
     fator_total <- fator_s10 + fator_calendario
     colnames(fator_calendario) = colnames(fator_total) <- nomes
     
@@ -279,33 +280,33 @@ seasX13 <- function(x, autoCorrection = NULL, userCorrection = NULL){
     }
   })
   names(tdok) <- nomes
-  fator_td <- window(do.call(cbind,tdok), start = start(fator1), end = end(fator1), frequency = 12)
+  fator_calendario <- window(do.call(cbind,tdok), start = start(fator1), end = end(fator1), frequency = 12)
   
-  hol <- lapply(names(outX13), FUN = function(x) tryCatch(outX13[[x]]$series$hol, error = function(e) NULL))
-  names(hol) <- nomes
-  holok <- lapply(names(outX13), FUN = function(x){
-    if(is.null(hol[[x]])){
-      if(esp[x,"transform.function"] == "none"){ 
-        m <- ts(0, start = start(fator1), end = end(fator1), frequency = 12) 
-      }else{ 
-        m <- ts(1, start = start(fator1), end = end(fator1), frequency = 12)
-      }
-    }else{
-      hol[[x]]
-    }
-  })
-  names(holok) <- nomes
-  fator_hol <- window(do.call(cbind,holok), start = start(fator1), end = end(fator1), frequency = 12)
+  # hol <- lapply(names(outX13), FUN = function(x) tryCatch(outX13[[x]]$series$hol, error = function(e) NULL))
+  # names(hol) <- nomes
+  # holok <- lapply(names(outX13), FUN = function(x){
+  #   if(is.null(hol[[x]])){
+  #     if(esp[x,"transform.function"] == "none"){ 
+  #       m <- ts(0, start = start(fator1), end = end(fator1), frequency = 12) 
+  #     }else{ 
+  #       m <- ts(1, start = start(fator1), end = end(fator1), frequency = 12)
+  #     }
+  #   }else{
+  #     hol[[x]]
+  #   }
+  # })
+  # names(holok) <- nomes
+  # fator_hol <- window(do.call(cbind,holok), start = start(fator1), end = end(fator1), frequency = 12)
   
   for(i in nomes){
     if(esp[i,"transform.function"] == "none"){
-      fator_calendario[,i] <- fator_hol[,i] + fator_td[,i]
+      #fator_calendario[,i] <- fator_hol[,i] + fator_td[,i]
       fator_calendario[as.Date(fator_calendario[,i]) > fim_prev[i],i] <- NA
       fator_s10[as.Date(fator_s10[,i]) > fim_prev[i],i] <- NA
       fator_total[,i] <- fator_s10[,i] + fator_calendario[,i]
       x_as[,i] <- xts[,i] - fator_total[,i]
     }else{
-      fator_calendario[,i] <- fator_hol[,i] * fator_td[,i]
+      #fator_calendario[,i] <- fator_hol[,i] * fator_td[,i]
       fator_calendario[as.Date(fator_calendario[,i]) > fim_prev[i],i] <- NA
       fator_s10[as.Date(fator_s10[,i]) > fim_prev[i],i] <- NA
       fator_total[,i] <- fator_s10[,i] * fator_calendario[,i]
