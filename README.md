@@ -60,7 +60,7 @@ seasX13(x, autoCorrection = NULL, userCorrection = NULL)
 
 * `autoCorrection`: a vector naming the time series should be auto corrected;
 
-* `userCorrection`: a vector naming the time series should be corrected by user especifications.
+* `userCorrection`: a vector naming the time series should be corrected by user specifications.
 
 
 #### seasX13() outputs
@@ -73,7 +73,7 @@ seasX13(x, autoCorrection = NULL, userCorrection = NULL)
 
 * `totalFactors`: seasonal plus calendar factors for each series
 
-* `espec`: model especifications for each series
+* `espec`: model specifications for each series
 
 * `model`: output from seas function (package **seasonal**) for each series
 
@@ -140,7 +140,7 @@ correct2 <- seasX13(auto, autoCorrection = c("ISAS"))
 - correct automatic seasonal adjustment using `userCorrection` argument from `seasX13()` function.
 
 ```R
-# edit the especification of output object from function seasX13 
+# edit the specification of output object from function seasX13 
 auto$espec["IES","arima.model"] <- "(0 1 1)(0 1 1)"
 auto$espec["IES","calendar.effects"] <- "td, carnival"
 
