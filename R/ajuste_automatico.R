@@ -189,7 +189,9 @@ ajuste_automatico <- function(x){
           
         }else if(dim(aux)[1] == 1){
           # substituir os novos p-valores após o novo ajuste
-          aux[,"pvalue"] <- k$coefficients[,"Pr(>|z|)"]["var.novos"]
+          var_name <- ifelse("var.novos" %in% names(k$coefficients[,"Pr(>|z|)"]), "var.novos","xreg")
+          aux[,"pvalue"] <- k$coefficients[,"Pr(>|z|)"][var_name]
+          #aux[,"pvalue"] <- k$coefficients[,"Pr(>|z|)"]["var.novos"]
           if(is.na(aux$pvalue)){ aux[,"pvalue"] <- k$coefficients[,"Pr(>|z|)"] }
           # testar após o novo ajuste se as novas variáveis são significativas
           aux$fica <- aux$pvalue < 0.05
@@ -422,7 +424,9 @@ ajuste_correcao <- function(x, model){
           
         }else if(dim(aux)[1] == 1){
           # substituir os novos p-valores após o novo ajuste
-          aux[,"pvalue"] <- k$coefficients[,"Pr(>|z|)"]["var.novos"]
+          var_name <- ifelse("var.novos" %in% names(k$coefficients[,"Pr(>|z|)"]), "var.novos","xreg")
+          aux[,"pvalue"] <- k$coefficients[,"Pr(>|z|)"][var_name]
+          #aux[,"pvalue"] <- k$coefficients[,"Pr(>|z|)"]["var.novos"]
           if(is.na(aux$pvalue)){ aux[,"pvalue"] <- k$coefficients[,"Pr(>|z|)"] }
           # testar após o novo ajuste se as novas variáveis são significativas
           aux$fica <- aux$pvalue < 0.05
